@@ -1,5 +1,3 @@
-# Build a database of all spaceports, each needs a lat/lon and list of datetimes for launches.
-
 from datetime import datetime
 import numpy as np
 import argparse
@@ -9,6 +7,7 @@ from web_scrape_func import scrape_jsr
 import pandas as pd
 import sys
 import json
+pd.set_option('display.max_rows', None)
 
 def clean_jsr_date(date):
 
@@ -16,14 +15,13 @@ def clean_jsr_date(date):
         return date
 
     date = date.strip()
+    date = date.replace("?", "")
     parts = date.split()
 
-    # Remove values with "?" or only one part (e.g. "2015?")
+    # Remove values with no time.
     # We are checking overpass times, so really we need values with a time.
-    if "?" in date:
-        return "?"
-    elif len(parts) < 4:
-        return "Too short"
+    if len(parts) < 4:
+        return "No time included"
     else:
         time_part = parts[-1]
 
@@ -43,7 +41,8 @@ class import_launches:
         """This function sets up the class.
 
         Args:
-            year (_type_): The year.
+            start_year (int): The start year.
+            final_year (int): The final year.
         """        
         
         self.start_year = start_year
@@ -51,6 +50,8 @@ class import_launches:
         self.session = requests.Session()
 
     def get_launch_info_jsr(self):
+        """This function gets the launch information from Jonathan McDowell's JSR website, and saves it to a JSON file.
+        """
 
         ####################################################################
         # Web scrape the launch data from Jonathan McDowell's JSR website.
@@ -61,20 +62,25 @@ class import_launches:
 
         # Filter the launches to remove unwanted entries.
         df = df[df["#Launch_Tag"].str[:4].astype(int).between(self.start_year, self.final_year)]
+        df = df[~df["LaunchCode"].str.startswith("M")]       # No military launches. 
+        exclude_flags = df["#Launch_Tag"].str[5].isin(["F", "U", "S", "A", "M"]) # Exclude failed, uncertain, suborbital, endoatmospheric, and meospheric launches.
+        special_groups = df["Group"].str.startswith(("BLOR"))                    # But always keep space tourism from Blue Origin. Virgin-Galactic is air-launched, so ignore.
+        df = df[~exclude_flags | special_groups]
+        
         df = df.reset_index()
         print("Found",len(df),"launches from JSR for the years",self.start_year,"to",self.final_year)
 
         # Convert the launch date to a datetime, and filter out uncertain launches or launches with no timings.
         df["Launch_Date_raw"] = df["Launch_Date"].copy() # Save a copy of the raw date for debugging.
         df["Launch_Date"] = df["Launch_Date"].apply(clean_jsr_date) 
-        uncertain_rows = len(df[df["Launch_Date"].isin(["?"])])
-        no_time_rows   = len(df[df["Launch_Date"].isin(["Too short"])])
+        no_time_rows   = len(df[df["Launch_Date"].isin(["No time included"])])
         df["Launch_Date"] = pd.to_datetime(df["Launch_Date"], errors="coerce") # Convert to datetime, setting errors to NaT (Not a Time) for failed parsing.
         df["Launch_Date"] = df["Launch_Date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
-        bad_rows = len(df[df["Launch_Date"].isna()])
+        bad_rows = df[df["Launch_Date"].isna()]
+        print(bad_rows)
         df_stats = pd.DataFrame({
-            "rows": ["Total Launches","Failed Date Parsing","Failed Uncertain","Failed No Time"],
-            "vals": [len(df), bad_rows, uncertain_rows, no_time_rows],
+            "rows": ["Total Launches","Failed Date Parsing","Failed No Time"],
+            "vals": [len(df), len(bad_rows), no_time_rows],
             })
         print(df_stats)
         df = df.dropna(subset=["Launch_Date"])
@@ -97,7 +103,9 @@ class import_launches:
         # Extract the required launch activity data and convert to a dict.
         ####################################################################
 
-        # NOTE: should save the launch tag
+        # TODO: Save the rocket and possibly some indication of plume size?
+        # This could be total propellant mass, thrust, ...?
+        # Should also use this to exclude air-launched rockets.
 
         launch_sites = {}
 

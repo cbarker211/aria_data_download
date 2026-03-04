@@ -160,7 +160,7 @@ for site in sites:
     coords_wgs84 = (lllon, lllat, urlon, urlat)
     bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
 
-    for launch_time in launch_times[30:]:
+    for launch_time in launch_times:
 
         # Define year, month, day of launch:
         launch_time = datetime.fromisoformat(launch_time).replace(tzinfo=timezone.utc)
@@ -202,6 +202,8 @@ for site in sites:
             if len(results) == 0:
                 #print('No data for '+yyyymmdd+'. Skipping.')
                 continue
+            elif len(results) > 1:
+                raise ValueError('More than one image returned. Please check the data and code.')
 
             cloud_cover = results[0]['properties']['eo:cloud_cover']    
             overpass_time = results[0]['properties']['datetime']
