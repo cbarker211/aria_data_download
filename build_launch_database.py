@@ -87,6 +87,10 @@ class import_launches:
 
         site_lookup = {}
 
+        # TODO: # Jonathan's databases sometimes have multiple launch locations at the same spaceport, all with very similar lat/lon.
+        # E.g. "Cape Canaveral Air Station, Florida", "NASA John F. Kennedy Space Center, Florida", "Space Florida, Cape Canaveral"
+        # Need to check the lat/lon are OK for these.
+
         for _, row in df_sites.iterrows():
             site_code = row["#Site"]
             lat = row["Latitude"].strip()
@@ -124,12 +128,7 @@ class import_launches:
         with open("sites.json", "w") as f:
             json.dump(launch_sites, f, indent=4)
 
-if __name__ == "__main__":
-    """The main running of the program goes here. 
-    All of the functions are inside the import_launches class.
-    Call each of the functions using import_launches._function_
-    e.g. import_launches.launches_per_year(start_year,end_year)
-    """         
+if __name__ == "__main__":     
     
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
