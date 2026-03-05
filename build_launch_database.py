@@ -77,14 +77,12 @@ class import_launches:
         df["Launch_Date"] = pd.to_datetime(df["Launch_Date"], errors="coerce") # Convert to datetime, setting errors to NaT (Not a Time) for failed parsing.
         df["Launch_Date"] = df["Launch_Date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
         bad_rows = df[df["Launch_Date"].isna()]
-        print(bad_rows)
         df_stats = pd.DataFrame({
             "rows": ["Total Launches","Failed Date Parsing","Failed No Time"],
             "vals": [len(df), len(bad_rows), no_time_rows],
             })
         print(df_stats)
         df = df.dropna(subset=["Launch_Date"])
-
         site_lookup = {}
 
         # TODO: # Jonathan's databases sometimes have multiple launch locations at the same spaceport, all with very similar lat/lon.
@@ -113,17 +111,27 @@ class import_launches:
 
         launch_sites = {}
 
-        for site_code, group in df.groupby("Launch_Site"):
+        for (site_code, pad_code), group in df.groupby(["Launch_Site", "Launch_Pad"]):
 
             if site_code not in site_lookup:
                 continue
 
-            launch_sites[site_code] = {
+            key = f"{site_code}_{pad_code}"
+
+            launch_sites[key] = {
                 "name": site_lookup[site_code]["name"],
                 "lat":  site_lookup[site_code]["lat"],
                 "lon":  site_lookup[site_code]["lon"],
-                "launch_times": sorted(group["Launch_Date"])
+                "launch_times": group["Launch_Date"].tolist(),
             }
+            
+            # Sometimes we need to tweak the coordinates to make sure its getting the right launch pad.
+            if key == "CC_SLC41":
+                launch_sites[key]["lat"] = "28.583431"
+                launch_sites[key]["lon"] = "-80.582874"
+            elif key == "CC_LC40":
+                launch_sites[key]["lat"] = "28.561868"
+                launch_sites[key]["lon"] = "-80.577193"
 
         with open("sites.json", "w") as f:
             json.dump(launch_sites, f, indent=4)

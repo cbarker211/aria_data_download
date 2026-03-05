@@ -86,8 +86,8 @@ class find_data:
         site_data = json.load(open("sites.json"))
 
         # Lets focus on Cape Canaveral for now, as this has the most launches.
-        sites = ["CC"]
-        #sites= list(site_data.keys())   
+        #sites = ["CC_SLC41"]
+        sites= list(site_data.keys())   
 
         # Define extent around target scene to sample
         # (balance between encompassing the scene and amount of data permitted for 10m resolution):
@@ -97,8 +97,6 @@ class find_data:
         # Target resolutions of output
         # (60 m for B01 or UB and 10 m for B02 or blue band):
         target_res = [10, 60]
-
-        strband = ['B02', 'B01']
         variables = {10: ["sza", "vza", "dataMask", "B02", "B04"],
                      60: ["sza", "vza", "dataMask", "B01", "B04"]}
         units = ["degrees", "degrees", "unitless", "DN", "DN"]
@@ -120,7 +118,7 @@ class find_data:
 
             # Get the full spaceport name and list of launch times.
             loc_name = site_data[site]['name']
-            launch_times = site_data[site]['launch_times'][40:41]
+            launch_times = site_data[site]['launch_times']
             print(f"Searching at {loc_name}.")
 
             # Set up grid box around location of interest:
@@ -143,8 +141,9 @@ class find_data:
                                 } for lt in launch_times]
 
             # First check for which times have an overpass within 1 hour with low cloud cover.
-            launch_times_success = {res: [] for res in target_res}
-            for pt in tqdm(processed_times, desc="Processing rows"):
+            launch_data = {res: [] for res in target_res}
+            scl_data_all = {res: [] for res in target_res}
+            for ind, pt in tqdm(enumerate(processed_times), total = len(processed_times), desc="Processing rows"):
 
                 launch_time = pt["dt"]
                 time_start  = pt["time_start"]
@@ -152,6 +151,7 @@ class find_data:
                 yyyymmdd    = pt["yyyymmdd"]
 
                 # First query if there's data on this day to minimise queries.
+                # This is searching the level 1 (raw) data.
                 search_iterator = self.catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
                 
                 results = list(search_iterator)
@@ -161,7 +161,6 @@ class find_data:
                     print(results)
                     raise ValueError(f'One result expected for {yyyymmdd}. Please check the data and code.')
                 
-                # TODO: Is the overpass time in UTC?
                 overpass_time = results[0]['properties']['datetime']
                 overpass_dt = datetime.fromisoformat(overpass_time.replace("Z", "+00:00"))
                 delta_t_mins = (overpass_dt - launch_time).total_seconds() / 60
@@ -170,7 +169,7 @@ class find_data:
 
                     size = bbox_to_dimensions(bbox, resolution=resolution)
 
-                    # We need this for cloud filtering and to save to netcdf.
+                    # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
                     request_scl_data = SentinelHubRequest(
                         data_folder='temp_dir',
                         evalscript=self.evalscript_scl,
@@ -197,19 +196,24 @@ class find_data:
                         return
 
                     print(f'Site = {site} on {yyyymmdd}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {delta_t_mins:.1f} mins. Requesting {resolution}m data...')
-                    launch_times_success[resolution].append(launch_time)
+                    launch_data[resolution].append((launch_time, cloud_prop, delta_t_mins))
+                    scl_data_all[resolution].append(scl_data)
             
                 for res in target_res:
                     check_overpass(res)
+
         
             # Setup an output array to hold the data to save. (time, lat, lon, variable)
             sizes = {res: bbox_to_dimensions(bbox, resolution=res) for res in target_res}
-            data_out = {res: np.full((len(launch_times_success[res]), sizes[res][1], sizes[res][0], 5), np.nan, dtype=np.float32) for res in target_res} 
+            data_out = {res: np.full((len(launch_data[res]), sizes[res][1], sizes[res][0], 5), np.nan, dtype=np.float32) for res in target_res} 
             
             # Now retrieve the actual data at resolution of interest.
             for res in target_res:
 
-                for launch_ind, launch_time in enumerate(launch_times_success[res]):
+                if len(launch_data[res]) == 0:
+                    continue
+
+                for launch_ind, (launch_time, _, _) in enumerate(launch_data[res]):
 
                     time_start = launch_time.strftime("%Y-%m-%dT%H:%M:%SZ")
                     time_end   = (launch_time+timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -264,12 +268,32 @@ class find_data:
                         attrs={"long_name": long_names[res][ind], "units": units[ind]}
                     )
 
+                cloud_prop_all   = [l[1] for l in launch_data[res]]
+                delta_t_mins_all = [l[2] for l in launch_data[res]]
+
+                data_vars["cloud_prop"] = xr.Variable(
+                    dims=("time"),
+                    data=np.array(cloud_prop_all, dtype=np.float32),
+                    attrs={"long_name": "Cloud cover proportion in bbox", "units": "%"}
+                )
+
+                data_vars["delta_t_mins"] = xr.Variable(
+                    dims=("time"),
+                    data=np.array(delta_t_mins_all, dtype=np.float32),
+                    attrs={"long_name": "Time difference between overpass and launch", "units": "minutes"}
+                )
+
+                data_vars["scl"] = xr.Variable(
+                    dims=("time","lat", "lon"),
+                    data = np.stack(scl_data_all[res]),
+                    attrs={"long_name": "Sentinel-2-L2A scene classification data", "units": "unitless"}
+                )
+
                 y_coords  = np.arange(sizes[res][0], dtype=np.int32)
                 x_coords  = np.arange(sizes[res][1], dtype=np.int32)
-                times_clean = [t.astimezone(timezone.utc).replace(tzinfo=None)for t in launch_times_success[res]]
+                times_clean = [t.astimezone(timezone.utc).replace(tzinfo=None)for t,_,_ in launch_data[res]]
                 times_np  = np.array(times_clean, dtype="datetime64[ns]")
 
-                # TODO: Output the SCL and cloud cover.
                 # --- Construct Dataset ---
                 ds = xr.Dataset(
                     data_vars=data_vars,
