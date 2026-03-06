@@ -1,25 +1,17 @@
 {
-    "ALCA_UL?": {
-        "name": "CLA, Alcantara Space Center",
-        "lat": "-2.3170",
-        "lon": "-44.3671",
-        "launch_times": [
-            "2015-11-13T17:20:00"
-        ]
-    },
     "CC_LC36": {
-        "name": "Cape Canaveral Air Station, Florida",
-        "lat": "28.4600",
-        "lon": "-80.5400",
+        "name": "Space Launch Complex 36, Cape Canaveral",
+        "lat": "28.4718",
+        "lon": "-80.5382",
         "launch_times": [
             "2025-01-16T07:03:00",
             "2025-11-13T20:55:00"
         ]
     },
     "CC_LC40": {
-        "name": "Cape Canaveral Air Station, Florida",
-        "lat": "28.561868",
-        "lon": "-80.577193",
+        "name": "Space Launch Complex 40, Cape Canaveral",
+        "lat": "28.5620",
+        "lon": "-80.5772",
         "launch_times": [
             "2015-01-10T09:47:10",
             "2015-02-11T23:03:42",
@@ -34,7 +26,6 @@
             "2016-06-15T14:29:00",
             "2016-07-18T04:45:29",
             "2016-08-14T05:26:00",
-            "2016-09-01T13:07:00",
             "2017-12-15T15:36:09",
             "2018-01-08T01:00:00",
             "2018-01-31T21:25:00",
@@ -309,19 +300,10 @@
             "2025-12-15T05:25:10"
         ]
     },
-    "CC_RW13": {
-        "name": "Cape Canaveral Air Station, Florida",
-        "lat": "28.4600",
-        "lon": "-80.5400",
-        "launch_times": [
-            "2016-12-15T13:37:00",
-            "2019-10-11T02:00:00"
-        ]
-    },
     "CC_SLC37B": {
-        "name": "Cape Canaveral Air Station, Florida",
-        "lat": "28.4600",
-        "lon": "-80.5400",
+        "name": "Space Launch Complex 37B, Cape Canaveral",
+        "lat": "28.5315",
+        "lon": "-80.5650",
         "launch_times": [
             "2015-03-25T18:36:00",
             "2015-07-24T00:07:00",
@@ -338,9 +320,9 @@
         ]
     },
     "CC_SLC41": {
-        "name": "Cape Canaveral Air Station, Florida",
-        "lat": "28.583431",
-        "lon": "-80.582874",
+        "name": "Space Launch Complex 41, Cape Canaveral",
+        "lat": "28.5833",
+        "lon": "-80.5831",
         "launch_times": [
             "2015-01-21T01:04:00",
             "2015-03-13T02:44:00",
@@ -396,9 +378,9 @@
         ]
     },
     "CSG_ELA3": {
-        "name": "Centre Spatial Guyanais, Kourou, Guyane Francaise",
-        "lat": "5.2333",
-        "lon": "-52.7517",
+        "name": "Ensemble de Lancement Ariane 3, CSG",
+        "lat": "5.2375",
+        "lon": "-52.7687",
         "launch_times": [
             "2015-04-26T20:00:07",
             "2015-05-27T21:16:07",
@@ -443,9 +425,9 @@
         ]
     },
     "CSG_ELA4": {
-        "name": "Centre Spatial Guyanais, Kourou, Guyane Francaise",
-        "lat": "5.2333",
-        "lon": "-52.7517",
+        "name": "Ensemble de Lancement Ariane 4, CSG",
+        "lat": "5.2646",
+        "lon": "-52.7922",
         "launch_times": [
             "2024-07-09T19:00:00",
             "2025-03-06T16:24:00",
@@ -455,9 +437,9 @@
         ]
     },
     "CSG_ELS": {
-        "name": "Centre Spatial Guyanais, Kourou, Guyane Francaise",
-        "lat": "5.2333",
-        "lon": "-52.7517",
+        "name": "Ensemble de Lancement Soyuz",
+        "lat": "5.3050",
+        "lon": "-52.8344",
         "launch_times": [
             "2015-03-27T21:46:18",
             "2015-09-11T02:08:10",
@@ -479,9 +461,9 @@
         ]
     },
     "CSG_ZLV": {
-        "name": "Centre Spatial Guyanais, Kourou, Guyane Francaise",
-        "lat": "5.2333",
-        "lon": "-52.7517",
+        "name": "Zone de Lancement Vega",
+        "lat": "5.2358",
+        "lon": "-52.7747",
         "launch_times": [
             "2015-06-23T01:51:58",
             "2015-12-03T04:04:01",
@@ -507,9 +489,9 @@
         ]
     },
     "GIK-1_LC133/3": {
-        "name": "1-y Gosudarstvenniy Ispitatelniy Kosmodrom MO RF",
-        "lat": "62.9000",
-        "lon": "40.5000",
+        "name": "Ploshchadka 133/3, GIK-1, Plesetsk, Rossiya",
+        "lat": "62.8950",
+        "lon": "40.8680",
         "launch_times": [
             "2015-03-31T13:47:56",
             "2015-09-23T21:59:38",
@@ -523,9 +505,9 @@
         ]
     },
     "GIK-1_LC35/1": {
-        "name": "1-y Gosudarstvenniy Ispitatelniy Kosmodrom MO RF",
-        "lat": "62.9000",
-        "lon": "40.5000",
+        "name": "Ploshchadka 35, GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9200",
+        "lon": "40.5800",
         "launch_times": [
             "2020-12-14T05:50:00",
             "2021-12-27T19:00:00",
@@ -539,9 +521,9 @@
         ]
     },
     "GIK-1_LC43/3": {
-        "name": "1-y Gosudarstvenniy Ispitatelniy Kosmodrom MO RF",
-        "lat": "62.9000",
-        "lon": "40.5000",
+        "name": "Ploshchadka 43/3, GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9300",
+        "lon": "40.4500",
         "launch_times": [
             "2019-12-11T08:54:00",
             "2020-02-20T08:24:54",
@@ -554,9 +536,9 @@
         ]
     },
     "GIK-1_LC43/4": {
-        "name": "1-y Gosudarstvenniy Ispitatelniy Kosmodrom MO RF",
-        "lat": "62.9000",
-        "lon": "40.5000",
+        "name": "Ploshchadka 43/4 'Sankt-Peterburg', GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9300",
+        "lon": "40.4700",
         "launch_times": [
             "2015-02-27T11:01:36",
             "2015-06-05T15:23:54",
@@ -608,20 +590,10 @@
             "2025-05-23T08:36:00"
         ]
     },
-    "GIK-1_LC43/4?": {
-        "name": "1-y Gosudarstvenniy Ispitatelniy Kosmodrom MO RF",
-        "lat": "62.9000",
-        "lon": "40.5000",
-        "launch_times": [
-            "2022-08-01T20:25:00",
-            "2023-03-29T19:57:02",
-            "2025-12-25T14:11:00"
-        ]
-    },
     "GIK-5_LC1": {
-        "name": "GIK-5, Baykonur, Kazakstan",
-        "lat": "46.0000",
-        "lon": "63.0000",
+        "name": "Ploshchadka 1 PU 17P32-5, GIK-5, Baykonur, Kazakstan",
+        "lat": "45.9203",
+        "lon": "63.3423",
         "launch_times": [
             "2015-02-17T11:00:17",
             "2015-03-27T19:42:57",
@@ -648,9 +620,9 @@
         ]
     },
     "GIK-5_LC200/39": {
-        "name": "GIK-5, Baykonur, Kazakstan",
-        "lat": "46.0000",
-        "lon": "63.0000",
+        "name": "PU39, Ploshchadka 200L, GIK-5, Baykonur, Kazakstan",
+        "lat": "46.0350",
+        "lon": "63.0370",
         "launch_times": [
             "2015-02-01T12:31:00",
             "2015-03-18T22:05:00",
@@ -669,9 +641,9 @@
         ]
     },
     "GIK-5_LC31": {
-        "name": "GIK-5, Baykonur, Kazakstan",
-        "lat": "46.0000",
-        "lon": "63.0000",
+        "name": "Ploshchadka 31 PU 17P32-6, GIK-5, Baykonur, Kazakstan",
+        "lat": "45.9960",
+        "lon": "63.5641",
         "launch_times": [
             "2015-04-28T07:09:50",
             "2015-12-21T08:44:39",
@@ -737,18 +709,18 @@
         ]
     },
     "GIK-5_LC45/1": {
-        "name": "GIK-5, Baykonur, Kazakstan",
-        "lat": "46.0000",
-        "lon": "63.0000",
+        "name": "PU1, Ploshchadka 45L, GIK-5, Baykonur, Kazakstan",
+        "lat": "45.9260",
+        "lon": "63.6220",
         "launch_times": [
             "2015-12-11T13:45:32",
             "2017-12-26T19:00:04"
         ]
     },
     "GIK-5_LC81/24": {
-        "name": "GIK-5, Baykonur, Kazakstan",
-        "lat": "46.0000",
-        "lon": "63.0000",
+        "name": "PU24, Ploshchadka 81P, GIK-5, Baykonur, Kazakstan",
+        "lat": "46.0670",
+        "lon": "62.9900",
         "launch_times": [
             "2015-09-14T19:00:00",
             "2015-12-13T00:19:00",
@@ -766,8 +738,8 @@
         ]
     },
     "HCSLS_LC1": {
-        "name": "Hainan Shangye Hangtian Fashe Chang (Hainan Commercial Space Launch Site)",
-        "lat": "19.5968",
+        "name": "Pad 1, Hainan Commercial Space Launch Site",
+        "lat": "19.5685",
         "lon": "110.9308",
         "launch_times": [
             "2025-03-11T16:38:00",
@@ -779,9 +751,9 @@
         ]
     },
     "HCSLS_LC2": {
-        "name": "Hainan Shangye Hangtian Fashe Chang (Hainan Commercial Space Launch Site)",
-        "lat": "19.5968",
-        "lon": "110.9308",
+        "name": "Pad 2, Hainan Commercial Space Launch Site",
+        "lat": "19.5975",
+        "lon": "110.9365",
         "launch_times": [
             "2024-11-30T14:25:00",
             "2025-08-04T10:21:23",
@@ -789,114 +761,26 @@
             "2025-12-11T23:00:00"
         ]
     },
-    "HHAI_LP1": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2019-06-05T04:06:00"
-        ]
-    },
-    "HHAI_LP2": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2020-09-15T01:23:00",
-            "2025-11-08T21:01:00"
-        ]
-    },
-    "HHAI_LP3": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2022-04-30T03:30:00"
-        ]
-    },
-    "HHAI_LP4": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2022-10-07T13:10:29",
-            "2023-09-05T09:34:46",
-            "2024-09-24T02:31:41",
-            "2025-01-13T03:00:00"
-        ]
-    },
-    "HHAI_LP4A": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2025-10-11T02:20:00"
-        ]
-    },
-    "HHAI_LP5": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2022-12-09T06:35:00"
-        ]
-    },
-    "HHAI_LP6": {
-        "name": "Huang Hai CZ-11 launch zone",
-        "lat": "34.9000",
-        "lon": "121.1900",
-        "launch_times": [
-            "2024-05-29T08:12:27",
-            "2024-08-29T05:22:00",
-            "2024-12-19T10:18:00",
-            "2025-05-19T07:38:00",
-            "2025-08-08T16:31:00",
-            "2025-09-08T19:48:00",
-            "2025-09-24T07:56:00"
-        ]
-    },
-    "JEJU_-": {
-        "name": "Barge launch site, Jungmun, Jeju I.",
-        "lat": "33.2000",
-        "lon": "126.4000",
-        "launch_times": [
-            "2023-12-04T05:00:00"
-        ]
-    },
-    "JQ_-": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
-        "launch_times": [
-            "2017-03-02T23:53:00",
-            "2019-07-25T05:00:00",
-            "2019-08-17T04:11:00",
-            "2020-11-07T07:12:00",
-            "2023-12-17T07:00:00",
-            "2025-12-09T03:41:00",
-            "2025-12-30T04:12:00"
-        ]
-    },
     "JQ_LC-CZ12A": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "CZ-12a pad, Jiuquan Space Center",
+        "lat": "40.8910",
+        "lon": "100.2200",
         "launch_times": [
             "2025-12-23T02:00:00"
         ]
     },
     "JQ_LC120": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 120 (TL-2)  Jiuquan Space Center",
+        "lat": "40.8556",
+        "lon": "100.1992",
         "launch_times": [
             "2023-04-02T08:48:15"
         ]
     },
     "JQ_LC130": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 130 (ZK-1A) Jiuquan Space Center",
+        "lat": "40.8184",
+        "lon": "100.2242",
         "launch_times": [
             "2022-07-27T04:12:00",
             "2023-06-07T04:10:02",
@@ -911,9 +795,9 @@
         ]
     },
     "JQ_LC43/91": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 921, South Launch Site-1, Jiuquan Space Center",
+        "lat": "40.9580",
+        "lon": "100.2912",
         "launch_times": [
             "2020-09-04T07:30:00",
             "2021-06-17T01:22:32",
@@ -932,9 +816,9 @@
         ]
     },
     "JQ_LC43/94": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
+        "lat": "40.9605",
+        "lon": "100.2980",
         "launch_times": [
             "2019-09-25T00:54:34",
             "2020-05-31T08:53:00",
@@ -1007,9 +891,9 @@
         ]
     },
     "JQ_LC43/95": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "KZ-1 pad, South Launch Site-East, Jiuquan Space Center",
+        "lat": "40.9691",
+        "lon": "100.3435",
         "launch_times": [
             "2015-09-25T01:41:40",
             "2016-11-09T23:42:00",
@@ -1028,23 +912,10 @@
             "2022-03-30T02:29:00"
         ]
     },
-    "JQ_LC43/95?": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
-        "launch_times": [
-            "2021-10-27T06:19:00",
-            "2021-11-24T23:41:00",
-            "2021-12-07T04:12:30",
-            "2022-12-07T01:15:00",
-            "2024-05-21T04:15:00",
-            "2025-12-13T01:08:00"
-        ]
-    },
     "JQ_LC43/95A": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "KZ-1 pad, South Launch Site-East, Jiuquan Space Center",
+        "lat": "40.9691",
+        "lon": "100.3435",
         "launch_times": [
             "2022-06-22T02:08:00",
             "2022-08-09T04:11:00",
@@ -1066,23 +937,14 @@
             "2024-05-30T23:39:00",
             "2024-06-06T05:00:00",
             "2025-01-20T10:11:00",
-            "2025-03-01T10:01:00",
             "2025-07-29T04:11:00",
             "2025-12-05T09:00:00"
         ]
     },
-    "JQ_LC43/95A?": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
-        "launch_times": [
-            "2021-09-27T06:19:00"
-        ]
-    },
     "JQ_LC43/95B": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "SQ-1 pad, South Launch Site-East, Jiuquan Space Center",
+        "lat": "40.9690",
+        "lon": "100.3440",
         "launch_times": [
             "2023-04-07T04:00:00",
             "2025-03-17T08:07:00",
@@ -1091,35 +953,35 @@
         ]
     },
     "JQ_LC43/96": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Area 43/96, Jiuquan Space Center",
+        "lat": "40.9149",
+        "lon": "100.2456",
         "launch_times": [
             "2023-07-12T01:00:00",
             "2023-12-08T23:39:03"
         ]
     },
     "JQ_LC43/96A": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Area 43/96A, Jiuquan Space Center",
+        "lat": "40.9149",
+        "lon": "100.2456",
         "launch_times": [
             "2024-11-27T02:00:00",
             "2025-05-17T04:12:00"
         ]
     },
     "JQ_LC43/96B": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Area 43/96B, Jiuquan Space Center",
+        "lat": "40.9203",
+        "lon": "100.2513",
         "launch_times": [
             "2025-12-03T04:00:00"
         ]
     },
     "JQ_LC603": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
+        "lat": "40.9605",
+        "lon": "100.2980",
         "launch_times": [
             "2015-09-14T04:42:00",
             "2015-10-07T04:13:05",
@@ -1149,16 +1011,16 @@
         ]
     },
     "JQ_LC921": {
-        "name": "Jiuquan Space Center, Nei Monggol Zizhiqu, China",
-        "lat": "41.3100",
-        "lon": "100.3100",
+        "name": "Pad 921, South Launch Site-1, Jiuquan Space Center",
+        "lat": "40.9580",
+        "lon": "100.2912",
         "launch_times": [
             "2016-09-15T14:04:09",
             "2016-10-16T23:30:31"
         ]
     },
     "KSC_LC39A": {
-        "name": "NASA John F. Kennedy Space Center, Florida",
+        "name": "Launch Complex 39A, NASA Kennedy Space Center, Florida",
         "lat": "28.6083",
         "lon": "-80.6041",
         "launch_times": [
@@ -1289,17 +1151,17 @@
         ]
     },
     "KSC_LC39B": {
-        "name": "NASA John F. Kennedy Space Center, Florida",
-        "lat": "28.6083",
-        "lon": "-80.6041",
+        "name": "Launch Complex 39B, NASA Kennedy Space Center, Florida",
+        "lat": "28.6272",
+        "lon": "-80.6208",
         "launch_times": [
             "2022-11-16T06:47:44"
         ]
     },
     "MAHIA_LC1A": {
-        "name": "Rocket Lab Launch Complex 1, Onenui Station, Mahia Peninsula",
-        "lat": "-39.2609",
-        "lon": "177.8655",
+        "name": "Rocket Lab Launch Complex 1A, Mahia Peninsula",
+        "lat": "-39.2616",
+        "lon": "177.8652",
         "launch_times": [
             "2018-01-21T01:43:00",
             "2018-11-11T03:50:00",
@@ -1335,9 +1197,9 @@
         ]
     },
     "MAHIA_LC1B": {
-        "name": "Rocket Lab Launch Complex 1, Onenui Station, Mahia Peninsula",
-        "lat": "-39.2609",
-        "lon": "177.8655",
+        "name": "Rocket Lab Launch Complex 1B, Mahia Peninsula",
+        "lat": "-39.2604",
+        "lon": "177.8652",
         "launch_times": [
             "2022-02-28T20:37:25",
             "2022-06-28T09:55:00",
@@ -1376,9 +1238,9 @@
         ]
     },
     "MARS_Pad 0A": {
-        "name": "Mid-Atlantic Regional Spaceport, Wallops Island, Virginia",
-        "lat": "37.8300",
-        "lon": "-75.4800",
+        "name": "Launch Area 0A, Wallops Flight Facility",
+        "lat": "37.8338",
+        "lon": "-75.4877",
         "launch_times": [
             "2016-10-17T23:45:40",
             "2017-11-12T12:19:51",
@@ -1396,18 +1258,18 @@
         ]
     },
     "MARS_Pad 0B": {
-        "name": "Mid-Atlantic Regional Spaceport, Wallops Island, Virginia",
-        "lat": "37.8300",
-        "lon": "-75.4800",
+        "name": "Launch Area 0B, Mid-Atlantic Regional Spaceport, Wallops Island",
+        "lat": "37.8311",
+        "lon": "-75.4913",
         "launch_times": [
             "2020-07-15T13:46:00",
             "2021-06-15T13:35:00"
         ]
     },
     "MARS_Pad 0C": {
-        "name": "Mid-Atlantic Regional Spaceport, Wallops Island, Virginia",
-        "lat": "37.8300",
-        "lon": "-75.4800",
+        "name": "Launch Area 0C (Rocket Lab LC2), Mid-Atlantic Regional Spaceport, Wallops Island",
+        "lat": "37.8332",
+        "lon": "-75.4882",
         "launch_times": [
             "2023-01-24T23:00:00",
             "2023-03-16T22:38:59",
@@ -1415,85 +1277,46 @@
             "2025-12-18T05:03:00"
         ]
     },
-    "MHV_RW12/30": {
-        "name": "Mojave Spaceport, California",
-        "lat": "35.0487",
-        "lon": "-118.1357",
-        "launch_times": [
-            "2021-01-17T19:38:51",
-            "2021-06-30T14:47:00",
-            "2022-01-13T22:52:00",
-            "2022-07-02T06:53:00"
-        ]
-    },
     "NARO_LC2": {
-        "name": "Naro Space Center (Naro Uju Senteo),Oenaro I,GoHeung, Jeollanam-do,Korea",
-        "lat": "34.4318",
-        "lon": "127.5363",
+        "name": "Launch Complex 2, Naro Space Center",
+        "lat": "34.4317",
+        "lon": "127.5345",
         "launch_times": [
             "2022-06-21T07:00:00",
             "2023-05-25T09:24:00",
             "2025-11-26T16:13:00"
         ]
     },
-    "PALB_-": {
-        "name": "Israeli Air Force Test Range, Palmachim Beach, Israel",
-        "lat": "31.9000",
-        "lon": "34.7000",
-        "launch_times": [
-            "2016-09-13T14:38:00",
-            "2020-07-06T01:00:00",
-            "2023-03-28T23:10:00",
-            "2025-09-02T19:30:00"
-        ]
-    },
     "PSCA_LP3B": {
-        "name": "Pacific Spaceport Complex Alaska, Kodiak Island, Alaska",
-        "lat": "57.4359",
-        "lon": "-152.3378",
+        "name": "Area 3, Pad B, Pacific Spaceport Complex Alaska, Kodiak Island, Alaska",
+        "lat": "57.4305",
+        "lon": "-152.3556",
         "launch_times": [
             "2021-11-20T06:16:00",
             "2022-03-15T16:22:00"
         ]
     },
-    "SEM_-": {
-        "name": "Semnan missile launch site, Iran",
-        "lat": "35.2347",
-        "lon": "53.9210",
-        "launch_times": [
-            "2019-08-29T06:58:00"
-        ]
-    },
     "SEM_IKSC": {
-        "name": "Semnan missile launch site, Iran",
-        "lat": "35.2347",
-        "lon": "53.9210",
+        "name": "Imam Khomeini Space Launch Center, Semnan, Iran",
+        "lat": "35.2369",
+        "lon": "53.9522",
         "launch_times": [
             "2024-01-28T00:04:00",
             "2024-12-06T03:14:00"
         ]
     },
     "SEM_SAF": {
-        "name": "Semnan missile launch site, Iran",
+        "name": "Safir pad, Semnan, Iran",
         "lat": "35.2347",
         "lon": "53.9210",
         "launch_times": [
             "2015-02-02T08:52:00"
         ]
     },
-    "SHAHR_-": {
-        "name": "Imam Reza Space Ctr, Damghan (Shahroud), Iran (Dasht-E-Kabir?)",
-        "lat": "36.2300",
-        "lon": "55.3300",
-        "launch_times": [
-            "2024-01-20T06:28:34",
-            "2024-09-14T06:00:00"
-        ]
-    },
     "SHAHR_LP1": {
-        "name": "Imam Reza Space Ctr, Damghan (Shahroud), Iran (Dasht-E-Kabir?)",
-        "lat": "36.2300",
-        "lon": "55.3300",
+        "name": "Qased pad, Imam Reza base, Damghan (Shahroud), Iran (Dasht-E-Kabir?)",
+        "lat": "36.2006",
+        "lon": "55.3340",
         "launch_times": [
             "2020-04-22T03:58:59",
             "2022-03-08T05:06:00",
@@ -1501,9 +1324,9 @@
         ]
     },
     "SHAR_FLP": {
-        "name": "Satish Dhawan Space Ctr, Sriharikota, Andhra Pradesh, India",
-        "lat": "13.6210",
-        "lon": "80.3030",
+        "name": "PSLV pad, Sriharikota Range",
+        "lat": "13.7333",
+        "lon": "80.2348",
         "launch_times": [
             "2015-03-28T11:49:00",
             "2015-07-10T16:28:00",
@@ -1535,9 +1358,9 @@
         ]
     },
     "SHAR_SLP": {
-        "name": "Satish Dhawan Space Ctr, Sriharikota, Andhra Pradesh, India",
-        "lat": "13.6210",
-        "lon": "80.3030",
+        "name": "GSLV pad 2, Sriharikota Range",
+        "lat": "13.7200",
+        "lon": "80.2305",
         "launch_times": [
             "2015-08-27T11:22:00",
             "2016-01-20T04:01:00",
@@ -1568,33 +1391,25 @@
         ]
     },
     "SOHAE_LC1": {
-        "name": "Sohae Launch Site, Tongch'ang-dong, Pyongang-bukdo (N Pyongan Prov), N Korea",
-        "lat": "39.6600",
-        "lon": "124.7060",
+        "name": "LC1 Sohae Launch Site, Tongch'ang-dong, Pyongang-bukdo (N Pyongan Prov)",
+        "lat": "39.6601",
+        "lon": "124.7053",
         "launch_times": [
             "2016-02-07T00:30:00"
         ]
     },
     "SOHAE_LC2": {
-        "name": "Sohae Launch Site, Tongch'ang-dong, Pyongang-bukdo (N Pyongan Prov), N Korea",
-        "lat": "39.6600",
-        "lon": "124.7060",
+        "name": "LC2 Sohae Launch Site, Tongch'ang-dong, Pyongang-bukdo (N Pyongan Prov)",
+        "lat": "39.6526",
+        "lon": "124.7363",
         "launch_times": [
             "2023-11-21T13:42:58"
         ]
     },
-    "SPFLA_SLC46": {
-        "name": "Space Florida, Cape Canaveral",
-        "lat": "28.4583",
-        "lon": "-80.5272",
-        "launch_times": [
-            "2017-08-26T06:04:00"
-        ]
-    },
     "TNSC_Y": {
-        "name": "Tanegashima Space Center, Tanegashima, Nippon",
-        "lat": "30.4000",
-        "lon": "130.9700",
+        "name": "Yoshinobu Launch Complex, Osaki Site, Tanegashima Space Center",
+        "lat": "30.4008",
+        "lon": "130.9776",
         "launch_times": [
             "2015-02-01T01:21:00",
             "2015-03-26T01:21:00",
@@ -1623,9 +1438,9 @@
         ]
     },
     "TNSC_Y2": {
-        "name": "Tanegashima Space Center, Tanegashima, Nippon",
-        "lat": "30.4000",
-        "lon": "130.9700",
+        "name": "Yoshinobu Launch Complex, Osaki Site, Tanegashima Space Center",
+        "lat": "30.4009",
+        "lon": "130.9754",
         "launch_times": [
             "2015-08-19T11:50:49",
             "2016-12-09T13:26:47",
@@ -1639,21 +1454,10 @@
             "2025-10-26T00:00:15"
         ]
     },
-    "TYSC_-": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
-        "launch_times": [
-            "2019-12-07T02:55:46",
-            "2019-12-07T08:52:00",
-            "2022-09-24T22:55:00",
-            "2025-12-16T03:17:00"
-        ]
-    },
     "TYSC_LC16": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
+        "name": "Pad 16, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8681",
+        "lon": "111.5802",
         "launch_times": [
             "2015-09-19T23:01:14",
             "2017-11-21T04:50:00",
@@ -1672,9 +1476,9 @@
         ]
     },
     "TYSC_LC9": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
+        "name": "Pad 9, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8632",
+        "lon": "111.5895",
         "launch_times": [
             "2015-06-26T06:22:04",
             "2015-08-27T02:31:35",
@@ -1731,18 +1535,10 @@
             "2024-12-16T18:50:00"
         ]
     },
-    "TYSC_LC9?": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
-        "launch_times": [
-            "2018-09-07T03:15:05"
-        ]
-    },
     "TYSC_LC9A": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
+        "name": "Pad 9A, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8585",
+        "lon": "111.5848",
         "launch_times": [
             "2022-03-29T09:50:00",
             "2022-11-11T22:52:00",
@@ -1765,53 +1561,18 @@
             "2025-12-08T22:11:00"
         ]
     },
-    "TYSC_lC9A": {
-        "name": "Taiyuan weixing fashe zhongxin",
-        "lat": "37.5000",
-        "lon": "112.6000",
-        "launch_times": [
-            "2025-06-05T20:45:00"
-        ]
-    },
-    "UNK_-": {
-        "name": "Unknown Site",
-        "lat": "-",
-        "lon": "-",
-        "launch_times": [
-            "2021-04-29T05:23:00"
-        ]
-    },
-    "USC_EP": {
-        "name": "Uchinoura Space Center, Kagoshima (formerly Kagoshima)",
-        "lat": "31.2500",
-        "lon": "131.0790",
-        "launch_times": [
-            "2016-12-20T11:00:00",
-            "2018-01-17T21:06:11",
-            "2019-01-18T00:50:20",
-            "2021-11-09T00:55:16"
-        ]
-    },
-    "USC_K": {
-        "name": "Uchinoura Space Center, Kagoshima (formerly Kagoshima)",
-        "lat": "31.2500",
-        "lon": "131.0790",
-        "launch_times": [
-            "2018-02-03T05:03:00"
-        ]
-    },
     "V_576E": {
-        "name": "Vandenberg AFB, California",
-        "lat": "34.7500",
-        "lon": "-120.6200",
+        "name": "Complex 576-E, Vandenberg AFB",
+        "lat": "34.7396",
+        "lon": "-120.6191",
         "launch_times": [
             "2017-10-31T21:37:00"
         ]
     },
     "V_SLC2W": {
-        "name": "Vandenberg AFB, California",
-        "lat": "34.7500",
-        "lon": "-120.6200",
+        "name": "Space Launch Complex 2-West, Vandenberg AFB",
+        "lat": "34.7555",
+        "lon": "-120.6223",
         "launch_times": [
             "2015-01-31T14:22:00",
             "2017-11-18T09:47:36",
@@ -1819,17 +1580,17 @@
         ]
     },
     "VOST_PL1A": {
-        "name": "Vostochniy, Svobodniy, Amurskaya Oblast', Rossiya",
-        "lat": "51.7000",
-        "lon": "128.0000",
+        "name": "1A Angara pad, Vostochniy, Svobodniy, Amurskaya Oblast', Rossiya",
+        "lat": "51.8744",
+        "lon": "128.3552",
         "launch_times": [
             "2024-04-11T09:00:00"
         ]
     },
     "VOST_PU1S": {
-        "name": "Vostochniy, Svobodniy, Amurskaya Oblast', Rossiya",
-        "lat": "51.7000",
-        "lon": "128.0000",
+        "name": "PU1S (371SK14) Soyuz pad, Vostochniy, Svobodniy, Amurskaya Oblast', Rossiya",
+        "lat": "51.8840",
+        "lon": "128.3345",
         "launch_times": [
             "2016-04-28T02:01:21",
             "2018-02-01T02:07:18",
@@ -1853,9 +1614,9 @@
         ]
     },
     "VS_SLC3E": {
-        "name": "South Vandenberg AFB, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
+        "name": "Space Launch Complex 3-East, Vandenberg AFB",
+        "lat": "34.6402",
+        "lon": "-120.5897",
         "launch_times": [
             "2015-10-08T12:49:00",
             "2016-11-11T18:30:33",
@@ -1865,9 +1626,9 @@
         ]
     },
     "VS_SLC4E": {
-        "name": "South Vandenberg AFB, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
+        "name": "Space Launch Complex 4-East, Vandenberg AFB",
+        "lat": "34.6320",
+        "lon": "-120.6106",
         "launch_times": [
             "2016-01-17T18:42:18",
             "2017-01-14T17:54:39",
@@ -1887,9 +1648,9 @@
         ]
     },
     "VS_SLC6": {
-        "name": "South Vandenberg AFB, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
+        "name": "Space Launch Complex 6, Vandenberg AFB",
+        "lat": "34.5813",
+        "lon": "-120.6269",
         "launch_times": [
             "2016-02-10T11:40:32",
             "2018-01-12T22:11:00",
@@ -1899,205 +1660,16 @@
         ]
     },
     "VS_SLC8": {
-        "name": "South Vandenberg AFB, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
+        "name": "Commercial Space Launch Facility, California Spaceport, Vandenberg AFB",
+        "lat": "34.5764",
+        "lon": "-120.6324",
         "launch_times": [
             "2025-04-16T19:33:00"
         ]
     },
-    "VSFB_RW30/12": {
-        "name": "Vandenberg Space Force Base, California",
-        "lat": "34.7500",
-        "lon": "-120.6200",
-        "launch_times": [
-            "2021-06-13T08:11:00"
-        ]
-    },
-    "VSFB_SLC2W": {
-        "name": "Vandenberg Space Force Base, California",
-        "lat": "34.7500",
-        "lon": "-120.6200",
-        "launch_times": [
-            "2022-10-01T07:01:00",
-            "2023-09-15T02:28:00",
-            "2023-12-22T17:32:30",
-            "2024-07-04T04:04:00"
-        ]
-    },
-    "VSFBS_SLC3E": {
-        "name": "South Base, Vandenberg Space Force Base, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
-        "launch_times": [
-            "2021-09-27T18:12:00",
-            "2022-11-10T09:49:00"
-        ]
-    },
-    "VSFBS_SLC4E": {
-        "name": "South Base, Vandenberg Space Force Base, California",
-        "lat": "34.6300",
-        "lon": "-120.6100",
-        "launch_times": [
-            "2021-09-14T03:55:50",
-            "2021-11-24T06:21:02",
-            "2021-12-18T12:41:40",
-            "2022-02-02T20:27:26",
-            "2022-02-25T17:12:10",
-            "2022-04-17T13:13:00",
-            "2022-05-13T22:07:50",
-            "2022-06-18T14:19:52",
-            "2022-07-11T01:39:40",
-            "2022-07-22T17:39:40",
-            "2022-08-12T21:40:20",
-            "2022-08-31T05:40:10",
-            "2022-10-05T23:10:30",
-            "2022-10-28T01:14:10",
-            "2022-12-16T11:46:47",
-            "2022-12-30T07:38:00",
-            "2023-01-19T15:43:10",
-            "2023-01-31T16:15:00",
-            "2023-02-17T19:12:20",
-            "2023-03-03T18:38:50",
-            "2023-03-17T19:26:40",
-            "2023-04-02T14:29:00",
-            "2023-04-15T06:47:39",
-            "2023-04-27T13:40:50",
-            "2023-05-10T20:09:00",
-            "2023-05-20T13:16:33",
-            "2023-05-31T06:02:30",
-            "2023-06-12T21:35:00",
-            "2023-06-22T07:19:00",
-            "2023-07-07T19:29:50",
-            "2023-07-20T04:09:30",
-            "2023-08-08T03:57:00",
-            "2023-08-22T09:37:30",
-            "2023-09-02T14:25:00",
-            "2023-09-12T06:57:50",
-            "2023-09-25T08:48:20",
-            "2023-10-09T07:43:00",
-            "2023-10-21T08:23:00",
-            "2023-10-29T09:00:00",
-            "2023-11-11T18:49:00",
-            "2023-11-20T10:30:40",
-            "2023-12-01T18:19:00",
-            "2023-12-08T08:03:00",
-            "2023-12-24T13:11:00",
-            "2024-01-03T03:44:20",
-            "2024-01-14T08:59:30",
-            "2024-01-24T00:35:00",
-            "2024-01-29T05:57:20",
-            "2024-02-10T00:34:00",
-            "2024-02-15T21:34:30",
-            "2024-02-23T04:11:50",
-            "2024-03-04T22:05:00",
-            "2024-03-11T04:09:00",
-            "2024-03-19T02:28:00",
-            "2024-04-02T02:30:00",
-            "2024-04-07T02:25:00",
-            "2024-04-11T14:25:00",
-            "2024-05-02T18:36:00",
-            "2024-05-10T04:30:00",
-            "2024-05-14T18:39:00",
-            "2024-05-22T08:00:00",
-            "2024-05-28T22:20:00",
-            "2024-06-08T12:58:00",
-            "2024-06-19T03:40:00",
-            "2024-06-24T03:47:00",
-            "2024-06-29T03:14:00",
-            "2024-07-12T02:35:00",
-            "2024-07-28T09:22:10",
-            "2024-08-04T07:24:00",
-            "2024-08-12T02:02:00",
-            "2024-08-16T18:56:00",
-            "2024-08-31T08:48:00",
-            "2024-09-06T03:20:00",
-            "2024-09-13T01:45:00",
-            "2024-09-20T13:50:00",
-            "2024-09-25T04:01:00",
-            "2024-10-15T08:21:00",
-            "2024-10-20T05:13:00",
-            "2024-10-24T17:14:00",
-            "2024-10-30T12:07:00",
-            "2024-11-09T06:14:00",
-            "2024-11-14T05:23:00",
-            "2024-11-18T05:53:00",
-            "2024-11-24T05:25:30",
-            "2024-11-30T08:10:00",
-            "2024-12-05T03:05:00",
-            "2024-12-13T21:55:40",
-            "2024-12-17T13:19:00",
-            "2024-12-21T11:34:24",
-            "2024-12-29T01:58:30",
-            "2025-01-10T03:53:00",
-            "2025-01-14T19:09:00",
-            "2025-01-21T15:45:50",
-            "2025-01-24T14:07:00",
-            "2025-02-01T23:02:10",
-            "2025-02-11T02:09:00",
-            "2025-02-23T01:38:20",
-            "2025-03-12T03:10:12",
-            "2025-03-15T06:43:00",
-            "2025-03-21T06:49:00",
-            "2025-03-26T22:11:40",
-            "2025-04-04T01:02:50",
-            "2025-04-07T23:06:10",
-            "2025-04-12T12:25:00",
-            "2025-04-20T12:29:00",
-            "2025-04-28T20:42:20",
-            "2025-05-10T00:19:50",
-            "2025-05-13T01:15:10",
-            "2025-05-16T13:43:50",
-            "2025-05-23T22:32:20",
-            "2025-05-27T16:57:15",
-            "2025-05-31T20:10:00",
-            "2025-06-04T23:40:30",
-            "2025-06-08T14:20:10",
-            "2025-06-13T01:54:50",
-            "2025-06-17T03:36:50",
-            "2025-06-23T21:25:00",
-            "2025-06-28T17:13:00",
-            "2025-07-16T02:05:20",
-            "2025-07-19T03:52:00",
-            "2025-07-23T18:13:00",
-            "2025-07-27T04:30:50",
-            "2025-07-31T18:35:09",
-            "2025-08-14T05:05:37",
-            "2025-08-18T16:26:49",
-            "2025-08-22T17:04:49",
-            "2025-08-26T18:53:41",
-            "2025-08-30T04:59:30",
-            "2025-09-03T03:51:26",
-            "2025-09-06T18:06:40",
-            "2025-09-10T14:12:10",
-            "2025-09-13T17:55:49",
-            "2025-09-19T16:31:39",
-            "2025-09-22T17:38:00",
-            "2025-09-26T04:26:29",
-            "2025-09-29T02:04:50",
-            "2025-10-03T14:06:50",
-            "2025-10-08T03:54:00",
-            "2025-10-15T23:06:06",
-            "2025-10-19T19:24:00",
-            "2025-10-22T14:16:20",
-            "2025-10-25T14:20:50",
-            "2025-10-28T00:43:49",
-            "2025-10-31T20:41:10",
-            "2025-11-06T21:13:50",
-            "2025-11-17T05:21:32",
-            "2025-11-23T08:48:00",
-            "2025-11-28T18:44:30",
-            "2025-12-02T05:28:20",
-            "2025-12-04T20:42:20",
-            "2025-12-07T17:58:30",
-            "2025-12-10T11:40:30",
-            "2025-12-14T05:49:00",
-            "2025-12-17T15:27:50"
-        ]
-    },
     "WEN_LC101": {
-        "name": "Wenchang Space Center, Hainan",
-        "lat": "19.6142",
+        "name": "CZ-5 pad, Wenchang Space Center, Hainan",
+        "lat": "19.6143",
         "lon": "110.9511",
         "launch_times": [
             "2016-11-03T12:43:14",
@@ -2119,9 +1691,9 @@
         ]
     },
     "WEN_LC201": {
-        "name": "Wenchang Space Center, Hainan",
-        "lat": "19.6142",
-        "lon": "110.9511",
+        "name": "CZ-7 pad, Wenchang Space Center, Hainan",
+        "lat": "19.6185",
+        "lon": "110.9555",
         "launch_times": [
             "2016-06-25T12:00:00",
             "2017-04-20T11:41:35",
@@ -2152,63 +1724,10 @@
             "2025-12-30T22:40:07"
         ]
     },
-    "WTEX_-": {
-        "name": "Blue Origin, West Texas Launch Site, Corn Ranch",
-        "lat": "31.4228",
-        "lon": "-104.7572",
-        "launch_times": [
-            "2015-04-29T15:00:00",
-            "2015-11-23T17:21:00",
-            "2016-01-22T13:00:00",
-            "2016-04-02T15:18:00",
-            "2016-06-19T14:36:00",
-            "2016-10-05T15:36:00",
-            "2017-12-12T16:59:00",
-            "2018-04-29T17:06:00",
-            "2018-07-18T15:11:00",
-            "2019-01-23T15:05:00",
-            "2019-05-02T13:32:00",
-            "2019-12-11T17:53:00",
-            "2020-10-13T13:36:00",
-            "2021-01-14T17:19:00",
-            "2021-04-14T16:51:00",
-            "2021-07-20T13:11:00",
-            "2021-08-26T14:31:20",
-            "2021-10-13T14:49:00",
-            "2021-12-11T15:00:49",
-            "2022-03-31T13:58:02",
-            "2022-06-04T13:25:09",
-            "2022-08-04T13:56:14",
-            "2022-09-12T14:27:00",
-            "2023-12-19T16:42:35",
-            "2024-05-19T14:35:18",
-            "2024-08-29T13:07:11",
-            "2024-10-23T15:25:38",
-            "2024-11-22T15:30:09",
-            "2025-02-04T16:00:07",
-            "2025-02-25T15:49:18",
-            "2025-04-14T13:30:07",
-            "2025-05-31T13:39:18",
-            "2025-06-29T14:40:03",
-            "2025-08-03T12:42:23",
-            "2025-09-18T13:00:07",
-            "2025-10-08T13:40:36",
-            "2025-12-20T14:15:07"
-        ]
-    },
-    "XSC_-": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
-        "lat": "28.2472",
-        "lon": "102.0291",
-        "launch_times": [
-            "2025-10-26T03:55:00",
-            "2025-12-26T16:07:00"
-        ]
-    },
     "XSC_LC2": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
-        "lat": "28.2472",
-        "lon": "102.0291",
+        "name": "Launch Complex 2, Xichang Space Center",
+        "lat": "28.2455",
+        "lon": "102.0271",
         "launch_times": [
             "2015-03-30T13:52:31",
             "2015-07-25T12:29:00",
@@ -2275,18 +1794,8 @@
             "2025-11-21T10:55:00"
         ]
     },
-    "XSC_LC2?": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
-        "lat": "28.2472",
-        "lon": "102.0291",
-        "launch_times": [
-            "2016-02-01T07:29:00",
-            "2018-05-03T16:06:05",
-            "2018-07-09T20:58:04"
-        ]
-    },
     "XSC_LC3": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
+        "name": "Launch Complex 3, Xichang Space Center",
         "lat": "28.2472",
         "lon": "102.0291",
         "launch_times": [
@@ -2366,18 +1875,10 @@
             "2025-12-09T15:08:00"
         ]
     },
-    "XSC_LC3?": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
-        "lat": "28.2472",
-        "lon": "102.0291",
-        "launch_times": [
-            "2019-11-04T17:43:04"
-        ]
-    },
     "XSC_LC4": {
-        "name": "Xichang Space Center (Songlin), Sichuan, China",
-        "lat": "28.2472",
-        "lon": "102.0291",
+        "name": "CZ-11 Launch Complex, Xichang Space Center",
+        "lat": "28.2428",
+        "lon": "102.0330",
         "launch_times": [
             "2020-05-29T20:13:00",
             "2020-12-09T20:14:00",
@@ -2390,29 +1891,11 @@
         ]
     },
     "YAS_Sh370/13": {
-        "name": "Yasniy site, Dombarovskiy Air Base, Orensburgskaya Oblast', Rossiya",
-        "lat": "50.7500",
-        "lon": "59.5000",
+        "name": "Shast' (silo) 370/13, Yasniy site",
+        "lat": "50.9729",
+        "lon": "59.5503",
         "launch_times": [
             "2015-03-25T22:08:53"
-        ]
-    },
-    "YJ_LP1": {
-        "name": "Yangjiang launch area",
-        "lat": "21.2800",
-        "lon": "112.0000",
-        "launch_times": [
-            "2023-12-05T19:24:00",
-            "2023-12-25T22:39:00",
-            "2024-01-11T05:30:00"
-        ]
-    },
-    "YJ_LP2": {
-        "name": "Yangjiang launch area",
-        "lat": "21.2800",
-        "lon": "112.0000",
-        "launch_times": [
-            "2024-02-03T03:06:00"
         ]
     }
 }

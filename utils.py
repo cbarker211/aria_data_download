@@ -67,7 +67,7 @@ def scrape_jsr(url,session):
         tsv_data = StringIO(response.text)
         # Load the data into a pandas DataFrame
         df = pd.read_csv(tsv_data, delimiter="\t", dtype=object, low_memory=False)
-        df = df.iloc[2:].reset_index(drop=True)
+        df = df.iloc[1:].reset_index(drop=True)
     else:
         raise ImportError(f"Failed to fetch from JSR URL: {url}", response.status_code)
     return df

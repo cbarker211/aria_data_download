@@ -3,7 +3,7 @@ import numpy as np
 import argparse
 import requests
 from tqdm import tqdm
-from web_scrape_func import scrape_jsr
+from utils import scrape_jsr
 import pandas as pd
 import sys
 import json
@@ -59,13 +59,16 @@ class import_launches:
 
         df       = scrape_jsr("https://planet4589.org/space/gcat/tsv/launch/launch.tsv",self.session)
         df_sites = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/sites.tsv",self.session)
+        df_points = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lp.tsv",self.session)
 
         # Filter the launches to remove unwanted entries.
         df = df[df["#Launch_Tag"].str[:4].astype(int).between(self.start_year, self.final_year)]
-        df = df[~df["LaunchCode"].str.startswith("M")]       # No military launches. 
-        exclude_flags = df["#Launch_Tag"].str[5].isin(["F", "U", "S", "A", "M"]) # Exclude failed, uncertain, suborbital, endoatmospheric, and meospheric launches.
-        special_groups = df["Group"].str.startswith(("BLOR"))                    # But always keep space tourism from Blue Origin. Virgin-Galactic is air-launched, so ignore.
-        df = df[~exclude_flags | special_groups]
+        df = df[~df["LaunchCode"].str.startswith("M")]                      # No military launches. 
+        is_orbital = df["#Launch_Tag"].str[5].str.isdigit().fillna(False)   # Only include orbital launches.
+        special_groups = df["Group"].str.startswith(("BLOR"))               # But always keep space tourism from Blue Origin.
+        df = df[is_orbital | special_groups]
+        df = df[df["Ascent_Site"] == "-"]                                   # Exclude air-launched rockets
+        df = df[df["Platform"] == "-"]                                      # Exclude ocean-launched rockets
         
         df = df.reset_index()
         print("Found",len(df),"launches from JSR for the years",self.start_year,"to",self.final_year)
@@ -83,19 +86,15 @@ class import_launches:
             })
         print(df_stats)
         df = df.dropna(subset=["Launch_Date"])
+
         site_lookup = {}
-
-        # TODO: # Jonathan's databases sometimes have multiple launch locations at the same spaceport, all with very similar lat/lon.
-        # E.g. "Cape Canaveral Air Station, Florida", "NASA John F. Kennedy Space Center, Florida", "Space Florida, Cape Canaveral"
-        # Need to check the lat/lon are OK for these.
-
-        for _, row in df_sites.iterrows():
-            site_code = row["#Site"]
+        for _, row in df_points.iterrows():
+            site_pad = f"{row["#Site"]}_{row["Code"]}"  
             lat = row["Latitude"].strip()
             lon = row["Longitude"].strip()
             name = row["Name"].strip()
 
-            site_lookup[site_code] = {
+            site_lookup[site_pad] = {
                 "lat": lat,
                 "lon": lon,
                 "name": name
@@ -107,31 +106,21 @@ class import_launches:
 
         # TODO: Save the rocket and possibly some indication of plume size?
         # This could be total propellant mass, thrust, ...?
-        # Should also use this to exclude air-launched rockets.
 
         launch_sites = {}
-
         for (site_code, pad_code), group in df.groupby(["Launch_Site", "Launch_Pad"]):
-
-            if site_code not in site_lookup:
+            
+            # TODO: Rerun replacing "?" with "" so we don't miss uncertain launch sites/pads.
+            site_pad = f"{site_code}_{pad_code}"
+            if site_pad not in site_lookup:
                 continue
 
-            key = f"{site_code}_{pad_code}"
-
-            launch_sites[key] = {
-                "name": site_lookup[site_code]["name"],
-                "lat":  site_lookup[site_code]["lat"],
-                "lon":  site_lookup[site_code]["lon"],
+            launch_sites[site_pad] = {
+                "name": site_lookup[site_pad]["name"],
+                "lat":  site_lookup[site_pad]["lat"],
+                "lon":  site_lookup[site_pad]["lon"],
                 "launch_times": group["Launch_Date"].tolist(),
             }
-            
-            # Sometimes we need to tweak the coordinates to make sure its getting the right launch pad.
-            if key == "CC_SLC41":
-                launch_sites[key]["lat"] = "28.583431"
-                launch_sites[key]["lon"] = "-80.582874"
-            elif key == "CC_LC40":
-                launch_sites[key]["lat"] = "28.561868"
-                launch_sites[key]["lon"] = "-80.577193"
 
         with open("sites.json", "w") as f:
             json.dump(launch_sites, f, indent=4)

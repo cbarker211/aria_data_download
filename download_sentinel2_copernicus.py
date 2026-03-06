@@ -208,7 +208,7 @@ class find_data:
                 for i in range(2):
                     ax[i].imshow(data[i], extent=extent, origin="upper",transform=ccrs.PlateCarree())
                     ax[i].set_extent(extent, crs=ccrs.PlateCarree())
-                plt.savefig(f'site_images/{site}_{launch_time.strftime("%Y-%m-%d")}_{res}.png')
+                plt.savefig(f'site_images/{site.replace("/","")}_{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
                 plt.close()
 
             # Save data for this site
@@ -222,13 +222,10 @@ class find_data:
         site_data = json.load(open("sites.json"))
         sites= list(site_data.keys())  
 
-        # TODO: There are 102 launch sites.
-        # Need to go through and double check the launch site coordinates are correct. 
-
         # Loop over each site and each launch at that site, and look for Sentinel-2 data on that day.
         # Starting off with the first quarter of launch sites.
         output_csv = []
-        for site in sites[25:50]:
+        for site in sites[23:30]:
 
             # Get the full spaceport name and list of launch times.
             loc_name = site_data[site]['name']
@@ -278,7 +275,7 @@ class find_data:
 
     def save_to_netcdf(self, site, res, sizes, data_out, launch_data, scl_data_all, lat_range, lon_range, loc_name, scene):
 
-        filename = f'sentinel2-l1c-band-l2a-slc-{site}-{res}-{scene}.nc'
+        filename = f'sentinel2-l1c-band-l2a-slc-{site.replace("/","")}-{res}-{scene}.nc'
         
         # Set up strings for saving to netCDF
         variables = {10: ["sza", "vza", "dataMask", "B02", "B04"],
