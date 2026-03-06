@@ -5,9 +5,8 @@ import numpy as np
 from netCDF4 import Dataset
 from sentinelhub.config import SHConfig
 from sentinelhub.api.catalog import SentinelHubCatalog
-from sentinelhub.geometry import BBox
 from sentinelhub.data_collections import DataCollection
-from sentinelhub.constants import MimeType, CRS
+from sentinelhub.constants import MimeType
 from sentinelhub.geo_utils import bbox_to_dimensions
 from sentinelhub.api.process import SentinelHubRequest
 import json
@@ -17,6 +16,8 @@ import cartopy.crs as ccrs
 from pathlib import Path
 import xarray as xr
 from tqdm import tqdm
+from utils import build_grid
+import pandas as pd
 
 # Units:
 # DN = 10000 * REFLECTANCE
@@ -50,6 +51,12 @@ class find_data:
     def __init__(self):
         """This sets up the class"""
 
+        # Target resolutions of output
+        # (60 m for B01 or UB and 10 m for B02 or blue band):
+        # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
+        # B02: blue (492.4 nm, 492.1 nm)
+        self.target_res = [10, 60]
+
         ##########################
         # Set up Sentinel Hub API
         ##########################
@@ -63,7 +70,7 @@ class find_data:
         # Error check to make sure credientials have been provided:
         if not self.config.sh_client_id or not self.config.sh_client_secret:
             print("Warning! To use Process API, please provide the credentials (OAuth client ID and client secret).")
-            
+
         #####################
         # Define evalscripts 
         #####################
@@ -75,245 +82,271 @@ class find_data:
                 script = script.replace("BAND_PLACEHOLDER", band)
             return script
 
-        self.evalscript_60m_res = load_evalscript("evalscript_res", band="B01")
-        self.evalscript_10m_res = load_evalscript("evalscript_res", band="B02")
-        self.evalscript_scl     = load_evalscript("evalscript_scl")
+        self.evalscript = {res: "" for res in self.target_res}
+        self.evalscript[60] = load_evalscript("evalscript_res", band="B01")
+        self.evalscript[10] = load_evalscript("evalscript_res", band="B02")
+        self.evalscript_scl   = load_evalscript("evalscript_scl")
+
+    def find_coincidences(self, bbox, deltat_minus, deltat_plus, launch_time, launch_data, scl_data_all, site):
+        """ This functions checks if there's a Sentinel-2 overpass within a certain time period
+            and if so, checks the cloud cover from the scene classification layer. 
+            If the cloud cover is less than 20%, it returns the launch time, cloud cover, and time difference between overpass and launch, 
+            as well as the scene classification data for that overpass."""
+
+        # First query if there's data on this day to minimise queries.
+        # This is searching the level 1 (raw) data.
+        time_start =  (launch_time + timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        time_end   =  (launch_time + timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        search_iterator = self.catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
+        results = list(search_iterator)
+        if len(results) == 0:
+            return launch_data, scl_data_all
+        
+        # Deduplicate tiles into unique overpasses by rounding to nearest minute
+        unique_overpasses = {}
+        for result in results:
+            overpass_dt = datetime.fromisoformat(result['properties']['datetime'].replace("Z", "+00:00"))
+            key = overpass_dt.replace(second=0, microsecond=0)
+            if key not in unique_overpasses:
+                unique_overpasses[key] = overpass_dt
+
+        if len(unique_overpasses.keys()) > 1:
+            print("Warning: Multiple overpasses found. Choosing closest.")
+
+        overpass_dt = min(unique_overpasses.values(), key=lambda dt: abs((dt - launch_time).total_seconds()))
+        delta_t_mins = (overpass_dt - launch_time).total_seconds() / 60
+        op_time_start = (overpass_dt - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        op_time_end   = (overpass_dt + timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
     
-    def download_data(self):
+        # https://sentiwiki.copernicus.eu/web/s2-processing
+        # The classification map is produced for each Sentinel-2 Level-2A product at 20 m and resamples to 60 m resolution 
+        # But we need to get the scl data at both 10m and 60m for output.
+        for res in self.target_res:
+            size = bbox_to_dimensions(bbox, resolution=res)
+
+            # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
+            request_scl_data = SentinelHubRequest(
+                data_folder='temp_dir', evalscript=self.evalscript_scl, bbox=bbox, size=size, config=self.config,
+                input_data=[
+                    SentinelHubRequest.input_data(
+                        data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=self.config.sh_base_url),
+                        time_interval=(op_time_start, op_time_end),
+                        other_args={"id":"S2L2A"},
+                    )
+                ],
+                responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+            )
+            
+            scl_data = request_scl_data.get_data()[0]
+            if scl_data.size == 0:
+                continue
+            
+            # Calculate cloud cover from scene classification data.
+            cld_mask = np.isin(scl_data, [3, 8, 9, 10])
+            cloud_prop = cld_mask.mean() * 100
+            if cloud_prop > 20:
+                continue
+            
+            if res == 10:
+                print(f'Site = {site} on {launch_time}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {delta_t_mins:.1f} mins.')
+            
+            launch_data[res].append((launch_time, cloud_prop, delta_t_mins))
+            scl_data_all[res].append(scl_data)
+        
+        return launch_data, scl_data_all
+    
+    def retrieve_data(self, bbox, deltat_minus, deltat_plus, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, scene):
+
+        # Setup an output array to hold the data to save. (time, lat, lon, variable)
+        sizes = {res: bbox_to_dimensions(bbox, resolution=res) for res in self.target_res}
+        data_out = {res: np.full((len(launch_data[res]), sizes[res][1], sizes[res][0], 5), np.nan, dtype=np.float32) for res in self.target_res} 
+        
+        for res in self.target_res:
+
+            if len(launch_data[res]) == 0:
+                continue
+
+            for launch_ind, (launch_time, _, delta_t_mins) in enumerate(launch_data[res]):
+
+                if deltat_minus is None:
+                    t_minus = delta_t_mins/60 - 1
+                    t_plus  = delta_t_mins/60 + 1
+                else:
+                    t_minus = deltat_minus
+                    t_plus  = deltat_plus
+
+                time_start = (launch_time+timedelta(hours=t_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                time_end   = (launch_time+timedelta(hours=t_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                
+                request_res_dep_data = SentinelHubRequest(
+                    data_folder='download',
+                    evalscript=self.evalscript[res],
+                    input_data=[
+                        SentinelHubRequest.input_data(
+                            data_collection=DataCollection.SENTINEL2_L1C.define_from("s2l1c", service_url=self.config.sh_base_url),
+                            time_interval=(time_start, time_end),
+                            other_args={"id":"S2L1C"},
+                        )
+                    ],
+                    responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+                    bbox=bbox,
+                    size=sizes[res],
+                    config=self.config,
+                )
+
+                # Get and check data:
+                requested_data = request_res_dep_data.get_data()
+                data_out[res][launch_ind,:,:,:] = requested_data[0]
+                if len(requested_data) > 1:
+                    raise ValueError('More than one image returned. Please check the data and code.')
+
+                # Save an image of the launch site overpass for a visual check.
+                fig, ax = plt.subplots(2,figsize=(15, 10),subplot_kw={"projection": ccrs.PlateCarree()})
+                extent = [lon_range[0], lon_range[1], lat_range[0], lat_range[1]]
+                data = [requested_data[0][:,:,3], requested_data[0][:,:,4]]
+                for i in range(2):
+                    ax[i].imshow(data[i], extent=extent, origin="upper",transform=ccrs.PlateCarree())
+                    ax[i].set_extent(extent, crs=ccrs.PlateCarree())
+                plt.savefig(f'site_images/{site}_{launch_time.strftime("%Y-%m-%d")}_{res}.png')
+                plt.close()
+
+            # Save data for this site
+            self.save_to_netcdf(site, res, sizes, data_out, launch_data, scl_data_all, lat_range, lon_range, loc_name, scene)
+            print(f'{site}-{res} written to disk')
+
+    def data_search(self):
         """This function downloads the Sentinel-2 data for the launch sites and times specified in the sites.json file."""
 
         # Open the sites file.
         site_data = json.load(open("sites.json"))
+        sites= list(site_data.keys())  
 
-        # Lets focus on Cape Canaveral for now, as this has the most launches.
-        #sites = ["CC_SLC41"]
-        sites= list(site_data.keys())   
-
-        # Define extent around target scene to sample
-        # (balance between encompassing the scene and amount of data permitted for 10m resolution):
-        dellat = 0.05
-        dellon = 0.08
-
-        # Target resolutions of output
-        # (60 m for B01 or UB and 10 m for B02 or blue band):
-        target_res = [10, 60]
-        variables = {10: ["sza", "vza", "dataMask", "B02", "B04"],
-                     60: ["sza", "vza", "dataMask", "B01", "B04"]}
-        units = ["degrees", "degrees", "unitless", "DN", "DN"]
-        long_name_strs = ['Sentinel-2-l1c solar zenith angle', 
-                      'Sentinel-2-l1c viewing zenith angle',
-                      'Sentinel-2-l1c data mask (0=nodata, 1=data)',
-                      '',
-                      'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)']
-        long_names = {10: long_name_strs,
-                      60: long_name_strs}
-        long_names[10][3] = 'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)'
-        long_names[60][3] = 'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)'
-        
-        # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
-        # B02: blue (492.4 nm, 492.1 nm)
+        # TODO: There are 102 launch sites.
+        # Need to go through and double check the launch site coordinates are correct. 
 
         # Loop over each site and each launch at that site, and look for Sentinel-2 data on that day.
-        for site in sites:
+        # Starting off with the first quarter of launch sites.
+        output_csv = []
+        for site in sites[25:50]:
 
             # Get the full spaceport name and list of launch times.
             loc_name = site_data[site]['name']
             launch_times = site_data[site]['launch_times']
             print(f"Searching at {loc_name}.")
 
-            # Set up grid box around location of interest:
-            # TODO: We might need to specify the actual launch platform when there's multiple.
-            loc_lat  = float(site_data[site]['lat'])
-            loc_lon  = float(site_data[site]['lon'])
-            lllon = loc_lon - dellon
-            lllat = loc_lat - dellat
-            urlon = loc_lon + dellon
-            urlat = loc_lat + dellat
-            coords_wgs84 = (lllon, lllat, urlon, urlat)
-            bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
-            lat_range = np.array([lllat, urlat], dtype=np.float64)  # [lat_min, lat_max]
-            lon_range = np.array([lllon, urlon], dtype=np.float64)  # [lon_min, lon_max]
+            # Set up grid box around site:
+            bbox, lat_range, lon_range = build_grid(site_data[site]['lat'], site_data[site]['lon'])   
 
-            processed_times = [{"dt":         datetime.fromisoformat(lt).replace(tzinfo=timezone.utc),
-                                "time_start": datetime.fromisoformat(lt).replace(tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                                "time_end":   (datetime.fromisoformat(lt).replace(tzinfo=timezone.utc) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                                "yyyymmdd":   datetime.fromisoformat(lt).replace(tzinfo=timezone.utc).strftime("%Y-%m-%d"),
-                                } for lt in launch_times]
-
+            ###################################################################################
             # First check for which times have an overpass within 1 hour with low cloud cover.
-            launch_data = {res: [] for res in target_res}
-            scl_data_all = {res: [] for res in target_res}
-            for ind, pt in tqdm(enumerate(processed_times), total = len(processed_times), desc="Processing rows"):
-
-                launch_time = pt["dt"]
-                time_start  = pt["time_start"]
-                time_end    = pt["time_end"]
-                yyyymmdd    = pt["yyyymmdd"]
-
-                # First query if there's data on this day to minimise queries.
-                # This is searching the level 1 (raw) data.
-                search_iterator = self.catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
-                
-                results = list(search_iterator)
-                if len(results) == 0:
-                    continue
-                elif len(results) > 1:
-                    print(results)
-                    raise ValueError(f'One result expected for {yyyymmdd}. Please check the data and code.')
-                
-                overpass_time = results[0]['properties']['datetime']
-                overpass_dt = datetime.fromisoformat(overpass_time.replace("Z", "+00:00"))
-                delta_t_mins = (overpass_dt - launch_time).total_seconds() / 60
-
-                def check_overpass(resolution):
-
-                    size = bbox_to_dimensions(bbox, resolution=resolution)
-
-                    # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
-                    request_scl_data = SentinelHubRequest(
-                        data_folder='temp_dir',
-                        evalscript=self.evalscript_scl,
-                        input_data=[
-                            SentinelHubRequest.input_data(
-                                data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=self.config.sh_base_url),
-                                time_interval=(time_start, time_end),
-                                other_args={"id":"S2L2A"},
-                                #mosaicking_order=MosaickingOrder.LEAST_CC,
-                            )
-                        ],
-                        responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-                        bbox=bbox,
-                        size=size,
-                        config=self.config,
-                    )
-                    scl_data = request_scl_data.get_data()[0]
-                    
-                    # Calculate cloud cover from scene classification data.
-                    cld_classes = [3, 8, 9, 10]
-                    cld_mask = np.isin(scl_data, cld_classes)
-                    cloud_prop = cld_mask.mean() * 100
-                    if cloud_prop > 20:
-                        return
-
-                    print(f'Site = {site} on {yyyymmdd}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {delta_t_mins:.1f} mins. Requesting {resolution}m data...')
-                    launch_data[resolution].append((launch_time, cloud_prop, delta_t_mins))
-                    scl_data_all[resolution].append(scl_data)
+            ###################################################################################
             
-                for res in target_res:
-                    check_overpass(res)
+            launch_data = {res: [] for res in self.target_res}
+            scl_data_all = {res: [] for res in self.target_res}
 
+            for time in tqdm(launch_times, total = len(launch_times), desc="Processing rows"):
+
+                launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
+                launch_data, scl_data_all = self.find_coincidences(bbox, 0, 1, launch_time, launch_data, scl_data_all, site)
+
+            output_csv.append((site,len(launch_data[10])))
         
-            # Setup an output array to hold the data to save. (time, lat, lon, variable)
-            sizes = {res: bbox_to_dimensions(bbox, resolution=res) for res in target_res}
-            data_out = {res: np.full((len(launch_data[res]), sizes[res][1], sizes[res][0], 5), np.nan, dtype=np.float32) for res in target_res} 
+            self.retrieve_data(bbox, 0, 1, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, "target")
+
+            ############################################
+            # Now look for overpasses before the launch. 
+            ############################################
+
+            # Only look either side of the launches we found.
+            times_to_check = [t[0] for t in launch_data[10]]
+            launch_data = {res: [] for res in self.target_res}
+            scl_data_all = {res: [] for res in self.target_res}
+
+            # The revisit time is latitude-dependent, so choose maximum 5 days either side.
+            # We only find the nearest overpass anyway.
+            for time in times_to_check:
+                launch_data, scl_data_all = self.find_coincidences(bbox, -120, -5, time, launch_data, scl_data_all, site)
+                if len(launch_data[10]) == 0:
+                   launch_data, scl_data_all = self.find_coincidences(bbox, 5, 120, time, launch_data, scl_data_all, site) 
             
-            # Now retrieve the actual data at resolution of interest.
-            for res in target_res:
+            self.retrieve_data(bbox, None, None, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, "reference")
+            # TODO: Sometimes no reference is found because the nearest overpasses are cloudy.
+            # Need to have a loop to widen the search area.
 
-                if len(launch_data[res]) == 0:
-                    continue
+        pd.DataFrame(output_csv, columns=['site', 'n_coincidences']).to_csv('coincidences.csv', index=False)
 
-                for launch_ind, (launch_time, _, _) in enumerate(launch_data[res]):
+    def save_to_netcdf(self, site, res, sizes, data_out, launch_data, scl_data_all, lat_range, lon_range, loc_name, scene):
 
-                    time_start = launch_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-                    time_end   = (launch_time+timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
-                    yyyymmdd   = launch_time.strftime("%Y-%m-%d")
+        filename = f'sentinel2-l1c-band-l2a-slc-{site}-{res}-{scene}.nc'
+        
+        # Set up strings for saving to netCDF
+        variables = {10: ["sza", "vza", "dataMask", "B02", "B04"],
+                    60: ["sza", "vza", "dataMask", "B01", "B04"]}
+        units = ["degrees", "degrees", "unitless", "DN", "DN"]
+        long_name_strs = ['Sentinel-2-l1c solar zenith angle', 
+                    'Sentinel-2-l1c viewing zenith angle',
+                    'Sentinel-2-l1c data mask (0=nodata, 1=data)',
+                    '',
+                    'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)']
+        long_names = {10: long_name_strs,
+                        60: long_name_strs}
+        long_names[10][3] = 'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)'
+        long_names[60][3] = 'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)'
 
-                    if res == 10:
-                        evalscript = self.evalscript_10m_res
-                    elif res == 60:
-                        evalscript = self.evalscript_60m_res
-                    else:
-                        raise ValueError('Resolution not recognized. Please choose either 10 or 60 m.')
-                    
-                    request_res_dep_data = SentinelHubRequest(
-                        data_folder='download',
-                        evalscript=evalscript,
-                        input_data=[
-                            SentinelHubRequest.input_data(
-                                data_collection=DataCollection.SENTINEL2_L1C.define_from("s2l1c", service_url=self.config.sh_base_url),
-                                time_interval=(time_start, time_end),
-                                other_args={"id":"S2L1C"},
-                            )
-                        ],
-                        responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-                        bbox=bbox,
-                        size=sizes[res],
-                        config=self.config,
-                    )
+        data_vars = {}
+        for ind, var in enumerate(variables[res]):
+            data_vars[var] = xr.Variable(
+                dims=("time", "lat", "lon"),
+                data=data_out[res][:,:,:,ind],
+                attrs={"long_name": long_names[res][ind], "units": units[ind]}
+            )
 
-                    # Get and check data:
-                    requested_data = request_res_dep_data.get_data()
-                    if len(requested_data) > 1:
-                        raise ValueError('More than one image returned. Please check the data and code.')
-                    
-                    data_out[res][launch_ind,:,:,:] = requested_data[0]
+        cloud_prop_all   = [l[1] for l in launch_data[res]]
+        delta_t_mins_all = [l[2] for l in launch_data[res]]
 
-                    fig, ax = plt.subplots(2,figsize=(15, 10),subplot_kw={"projection": ccrs.PlateCarree()})
-                    extent = [lllon, urlon, lllat, urlat]
-                    data = [requested_data[0][:,:,3], requested_data[0][:,:,4]]
-                    for i in range(2):
-                        ax[i].imshow(data[i], extent=extent, origin="upper",transform=ccrs.PlateCarree())
-                        ax[i].set_extent(extent, crs=ccrs.PlateCarree())
-                    plt.savefig(f'site_images/{site}_{yyyymmdd}_{res}.png')
-                    plt.close()
+        data_vars["cloud_prop"] = xr.Variable(
+            dims=("time"),
+            data=np.array(cloud_prop_all, dtype=np.float32),
+            attrs={"long_name": "Cloud cover proportion in bbox", "units": "%"}
+        )
 
-                filename = f'sentinel2-l1c-band-l2a-slc-{site}-{res}.nc'
+        data_vars["delta_t_mins"] = xr.Variable(
+            dims=("time"),
+            data=np.array(delta_t_mins_all, dtype=np.float32),
+            attrs={"long_name": "Time difference between overpass and launch", "units": "minutes"}
+        )
 
-                data_vars = {}
-                for ind, var in enumerate(variables[res]):
-                    data_vars[var] = xr.Variable(
-                        dims=("time", "lat", "lon"),
-                        data=data_out[res][:,:,:,ind],
-                        attrs={"long_name": long_names[res][ind], "units": units[ind]}
-                    )
+        data_vars["scl"] = xr.Variable(
+            dims=("time","lat", "lon"),
+            data = np.stack(scl_data_all[res]),
+            attrs={"long_name": "Sentinel-2-L2A scene classification data", "units": "unitless"}
+        )
 
-                cloud_prop_all   = [l[1] for l in launch_data[res]]
-                delta_t_mins_all = [l[2] for l in launch_data[res]]
+        y_coords  = np.arange(sizes[res][0], dtype=np.int32)
+        x_coords  = np.arange(sizes[res][1], dtype=np.int32)
+        times_clean = [t.astimezone(timezone.utc).replace(tzinfo=None)for t,_,_ in launch_data[res]]
+        times_np  = np.array(times_clean, dtype="datetime64[ns]")
 
-                data_vars["cloud_prop"] = xr.Variable(
-                    dims=("time"),
-                    data=np.array(cloud_prop_all, dtype=np.float32),
-                    attrs={"long_name": "Cloud cover proportion in bbox", "units": "%"}
-                )
-
-                data_vars["delta_t_mins"] = xr.Variable(
-                    dims=("time"),
-                    data=np.array(delta_t_mins_all, dtype=np.float32),
-                    attrs={"long_name": "Time difference between overpass and launch", "units": "minutes"}
-                )
-
-                data_vars["scl"] = xr.Variable(
-                    dims=("time","lat", "lon"),
-                    data = np.stack(scl_data_all[res]),
-                    attrs={"long_name": "Sentinel-2-L2A scene classification data", "units": "unitless"}
-                )
-
-                y_coords  = np.arange(sizes[res][0], dtype=np.int32)
-                x_coords  = np.arange(sizes[res][1], dtype=np.int32)
-                times_clean = [t.astimezone(timezone.utc).replace(tzinfo=None)for t,_,_ in launch_data[res]]
-                times_np  = np.array(times_clean, dtype="datetime64[ns]")
-
-                # --- Construct Dataset ---
-                ds = xr.Dataset(
-                    data_vars=data_vars,
-                    coords={
-                        "time":      ("time",      times_np),
-                        "y":         ("y",         y_coords, {"long_name": "pixel row index", "units": "1"}),
-                        "x":         ("x",         x_coords, {"long_name": "pixel col index", "units": "1"}),
-                        "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
-                                                                "units": "degrees_north"}),
-                        "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
-                                                                "units": "degrees_east"}),
-                    },
-                    attrs={"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}"}
-                    )
-                
-                ds.to_netcdf("download/"+filename)
-                print('===> ' + filename + ' written to disk')         
+        # --- Construct Dataset ---
+        ds = xr.Dataset(
+            data_vars=data_vars,
+            coords={
+                "time":      ("time",      times_np),
+                "y":         ("y",         y_coords, {"long_name": "pixel row index", "units": "1"}),
+                "x":         ("x",         x_coords, {"long_name": "pixel col index", "units": "1"}),
+                "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
+                                                        "units": "degrees_north"}),
+                "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
+                                                        "units": "degrees_east"}),
+            },
+            attrs={"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}"}
+            )
+        
+        ds.to_netcdf("download/"+filename)
 
 if __name__ == "__main__":     
     
     #Loop over all years and run functions depending on input arguments.
     LaunchData = find_data()  
-    LaunchData.download_data()
+    LaunchData.data_search()
