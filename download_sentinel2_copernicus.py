@@ -103,7 +103,7 @@ class find_data:
         if len(results) == 0:
             return launch_data, scl_data_all
         
-        # Deduplicate tiles into unique overpasses by rounding to nearest minute
+        # Duplicate tiles into unique overpasses by rounding to nearest minute
         unique_overpasses = {}
         for result in results:
             overpass_dt = datetime.fromisoformat(result['properties']['datetime'].replace("Z", "+00:00"))
@@ -111,9 +111,14 @@ class find_data:
             if key not in unique_overpasses:
                 unique_overpasses[key] = overpass_dt
 
+        # Could we exploit multiple overpasses rather than only retaining one? 
         if len(unique_overpasses.keys()) > 1:
             print("Warning: Multiple overpasses found. Choosing closest.")
 
+        # I get an error in the time format when the code is attempting to save the data to the NetCDF file.
+        # There's a ".5" decimal value for some seconds entries that I suspect is causing the issue.
+        # The error occured for me for multiple sites:  
+        # KSC_LC39A, TYSC_LC9, JQ_LC43/94, JQLC43/91, CC_LC40, GIK-1_LC43/4, GIK-1_LC43/3, JQ_LC120, JQ_LC130 
         overpass_dt = min(unique_overpasses.values(), key=lambda dt: abs((dt - launch_time).total_seconds()))
         delta_t_mins = (overpass_dt - launch_time).total_seconds() / 60
         op_time_start = (overpass_dt - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -270,6 +275,9 @@ class find_data:
             self.retrieve_data(bbox, None, None, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, "reference")
             # TODO: Sometimes no reference is found because the nearest overpasses are cloudy.
             # Need to have a loop to widen the search area.
+            # Agreed. And consider relaxing the cloud cover threshold to 40 or 50, as the area around the launchpad might
+            # be cloud free. I only obtained a reference and target scene for TYSC_LC16 and a ratio of these two scenes
+            # yielded a small enhancement that looks like it might be a small plume. 
 
         pd.DataFrame(output_csv, columns=['site', 'n_coincidences']).to_csv('coincidences.csv', index=False)
 
