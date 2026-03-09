@@ -55,7 +55,7 @@ class find_data:
         # (60 m for B01 or UB and 10 m for B02 or blue band):
         # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
         # B02: blue (492.4 nm, 492.1 nm)
-        self.target_res = [10, 60]
+        self.target_res = [10]#, 60]
 
         ##########################
         # Set up Sentinel Hub API
@@ -225,12 +225,15 @@ class find_data:
 
         # Open the sites file.
         site_data = json.load(open("sites.json"))
-        sites= list(site_data.keys())  
+        sites = list(site_data.keys()) 
+        sites = ["JQ_LC130"] 
+
+        df_sites = pd.read_csv('coincidences.csv', index_col='Site')
+        sites_data = df_sites.to_dict(orient='index')
 
         # Loop over each site and each launch at that site, and look for Sentinel-2 data on that day.
         # Starting off with the first quarter of launch sites.
-        output_csv = []
-        for site in sites[23:30]:
+        for site in sites:
 
             # Get the full spaceport name and list of launch times.
             loc_name = site_data[site]['name']
@@ -252,7 +255,7 @@ class find_data:
                 launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
                 launch_data, scl_data_all = self.find_coincidences(bbox, 0, 1, launch_time, launch_data, scl_data_all, site)
 
-            output_csv.append((site,len(launch_data[10])))
+            sites_data[site]["Targets"] = int(len(launch_data[self.target_res[0]]))
         
             self.retrieve_data(bbox, 0, 1, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, "target")
 
@@ -270,7 +273,9 @@ class find_data:
             for time in times_to_check:
                 launch_data, scl_data_all = self.find_coincidences(bbox, -120, -5, time, launch_data, scl_data_all, site)
                 if len(launch_data[10]) == 0:
-                   launch_data, scl_data_all = self.find_coincidences(bbox, 5, 120, time, launch_data, scl_data_all, site) 
+                   launch_data, scl_data_all = self.find_coincidences(bbox, 5, 120, time, launch_data, scl_data_all, site)
+
+            sites_data[site]["References"] = int(len(launch_data[self.target_res[0]]))
             
             self.retrieve_data(bbox, None, None, launch_data, scl_data_all, site, loc_name, lat_range, lon_range, "reference")
             # TODO: Sometimes no reference is found because the nearest overpasses are cloudy.
@@ -279,7 +284,9 @@ class find_data:
             # be cloud free. I only obtained a reference and target scene for TYSC_LC16 and a ratio of these two scenes
             # yielded a small enhancement that looks like it might be a small plume. 
 
-        pd.DataFrame(output_csv, columns=['site', 'n_coincidences']).to_csv('coincidences.csv', index=False)
+        df = pd.DataFrame.from_dict(sites_data, orient='index')
+        df.index.name = 'Site'
+        df.to_csv('coincidences.csv')
 
     def save_to_netcdf(self, site, res, sizes, data_out, launch_data, scl_data_all, lat_range, lon_range, loc_name, scene):
 

@@ -57,9 +57,11 @@ class import_launches:
         # Web scrape the launch data from Jonathan McDowell's JSR website.
         ####################################################################
 
-        df       = scrape_jsr("https://planet4589.org/space/gcat/tsv/launch/launch.tsv",self.session)
-        df_sites = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/sites.tsv",self.session)
+        df        = scrape_jsr("https://planet4589.org/space/gcat/tsv/launch/launch.tsv",self.session)
         df_points = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lp.tsv",self.session)
+
+        # TODO: Each time, we should save these files and then load them in.
+        # That way we can track changes with git.
 
         # Filter the launches to remove unwanted entries.
         df = df[df["#Launch_Tag"].str[:4].astype(int).between(self.start_year, self.final_year)]
