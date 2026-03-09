@@ -60,9 +60,6 @@ class import_launches:
         df        = scrape_jsr("https://planet4589.org/space/gcat/tsv/launch/launch.tsv",self.session)
         df_points = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lp.tsv",self.session)
 
-        # TODO: Each time, we should save these files and then load them in.
-        # That way we can track changes with git.
-
         # Filter the launches to remove unwanted entries.
         df = df[df["#Launch_Tag"].str[:4].astype(int).between(self.start_year, self.final_year)]
         df = df[~df["LaunchCode"].str.startswith("M")]                      # No military launches. 
@@ -89,9 +86,13 @@ class import_launches:
         print(df_stats)
         df = df.dropna(subset=["Launch_Date"])
 
+        # Remove question marks to consolidate launch sites.
+        df["Launch_Site"] = df["Launch_Site"].str.replace("?", "", regex=False).str.strip()
+        df["Launch_Pad"] = df["Launch_Pad"].str.replace("?", "", regex=False).str.strip()
+
         site_lookup = {}
         for _, row in df_points.iterrows():
-            site_pad = f"{row["#Site"]}_{row["Code"]}"  
+            site_pad = f"{row["#Site"]}_{row["Code"].replace("?","")}"  
             lat = row["Latitude"].strip()
             lon = row["Longitude"].strip()
             name = row["Name"].strip()
@@ -112,7 +113,6 @@ class import_launches:
         launch_sites = {}
         for (site_code, pad_code), group in df.groupby(["Launch_Site", "Launch_Pad"]):
             
-            # TODO: Rerun replacing "?" with "" so we don't miss uncertain launch sites/pads.
             site_pad = f"{site_code}_{pad_code}"
             if site_pad not in site_lookup:
                 continue

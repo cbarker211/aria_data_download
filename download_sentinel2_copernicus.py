@@ -9,6 +9,7 @@ from sentinelhub.data_collections import DataCollection
 from sentinelhub.constants import MimeType
 from sentinelhub.geo_utils import bbox_to_dimensions
 from sentinelhub.api.process import SentinelHubRequest
+from sentinelhub.download.session import SentinelHubSession
 import json
 from datetime import datetime, timedelta, timezone
 import matplotlib.pyplot as plt
@@ -18,6 +19,7 @@ import xarray as xr
 from tqdm import tqdm
 from utils import build_grid
 import pandas as pd
+import requests
 
 # Units:
 # DN = 10000 * REFLECTANCE
@@ -55,7 +57,7 @@ class find_data:
         # (60 m for B01 or UB and 10 m for B02 or blue band):
         # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
         # B02: blue (492.4 nm, 492.1 nm)
-        self.target_res = [10]#, 60]
+        self.target_res = [10, 60]
 
         ##########################
         # Set up Sentinel Hub API
@@ -65,6 +67,19 @@ class find_data:
         self.config = SHConfig()
         self.config.sh_base_url = 'https://sh.dataspace.copernicus.eu'
         self.config.sh_token_url = 'https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token'
+
+        try:
+            response = requests.get('https://sh.dataspace.copernicus.eu/api/v1/capabilities', timeout=10)
+            if response.status_code == 503:
+                raise RuntimeError("Copernicus Data Space is currently unavailable (503). Try again later.")
+            elif not response.ok:
+                raise RuntimeError(f"Copernicus Data Space returned unexpected status {response.status_code}. Try again later.")
+            print("Copernicus Data Space is reachable.")
+        except requests.exceptions.ConnectionError:
+            raise RuntimeError("Cannot reach Copernicus Data Space — check your internet connection.")
+        except requests.exceptions.Timeout:
+            raise RuntimeError("Copernicus Data Space timed out — server may be under heavy load.")
+
         self.catalog = SentinelHubCatalog(config=self.config)
 
         # Error check to make sure credientials have been provided:
