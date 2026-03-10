@@ -92,7 +92,7 @@ class import_launches:
 
         site_lookup = {}
         for _, row in df_points.iterrows():
-            site_pad = f"{row["#Site"]}_{row["Code"].replace("?","")}"  
+            site_pad = f'{row["#Site"]}_{row["Code"].replace("?","")}'  
             lat = row["Latitude"].strip()
             lon = row["Longitude"].strip()
             name = row["Name"].strip()

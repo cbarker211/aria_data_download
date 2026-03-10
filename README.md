@@ -1,5 +1,5 @@
 # ARIA Project
-## Unlocking the potential to quantify spacecraftpollution from space-based broadband imagers 
+## Unlocking the potential to quantify spacecraft pollution from space-based broadband imagers 
 
 ### build_launch_database.py
 
