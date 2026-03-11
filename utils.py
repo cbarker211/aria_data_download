@@ -3,6 +3,7 @@ from io import StringIO
 import pandas as pd
 from sentinelhub.geometry import BBox
 from sentinelhub.constants import CRS
+from haversine import haversine
 
 def scrape_jsr(url,session):
     # Function to web scrape data and convert to a pandas DataFrame.
@@ -27,16 +28,21 @@ def build_grid(site_lat, site_lon):
     # Define extent around target scene to sample
     # (balance between encompassing the scene and amount of data permitted for 10m resolution):
 
-    dellat, dellon = 0.05, 0.08
+    dellat, dellon = 0.03, 0.04
     loc_lat  = float(site_lat)
     loc_lon  = float(site_lon)
-    lllon = loc_lon - dellon
-    lllat = loc_lat - dellat
-    urlon = loc_lon + dellon
-    urlat = loc_lat + dellat
-    coords_wgs84 = (lllon, lllat, urlon, urlat)
+    lon_min = loc_lon - dellon
+    lat_min = loc_lat - dellat
+    lon_max = loc_lon + dellon
+    lat_max = loc_lat + dellat
+    coords_wgs84 = (lon_min, lat_min, lon_max, lat_max)
     bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
-    lat_range = np.array([lllat, urlat], dtype=np.float64)  # [lat_min, lat_max]
-    lon_range = np.array([lllon, urlon], dtype=np.float64)  # [lon_min, lon_max]
+    lat_range = np.array([lat_min, lat_max], dtype=np.float64)  # [lat_min, lat_max]
+    lon_range = np.array([lon_min, lon_max], dtype=np.float64)  # [lon_min, lon_max]
+
+    # Calculate box size in km²
+    lat_km = haversine((lat_min, loc_lon), (lat_max, loc_lon))
+    lon_km = haversine((loc_lat, lon_min), (loc_lat, lon_max))
+    print(f"Bounding box size: {lat_km:.2f} km x {lon_km:.2f} km")
 
     return bbox, lat_range, lon_range
