@@ -232,7 +232,6 @@ class find_data:
                     # Get and check data:
                     requested_data = request_res_dep_data.get_data()
                     data_out[res][launch_ind,overpass,:,:,:] = requested_data[0]
-                    #print(requested_data[0])
                     if len(requested_data) > 1:
                         raise ValueError('More than one image returned. Please check the data and code.')
                     elif len(requested_data) == None:
@@ -258,8 +257,7 @@ class find_data:
         # Open the sites file.
         site_data = json.load(open("sites.json"))
         sites = list(site_data.keys()) 
-        sites = ["JQ_LC130"] 
-
+        sites = ["CC_LC40"]
         df_sites = pd.read_csv('coincidences.csv', index_col='Site')
         sites_data = df_sites.to_dict(orient='index')
 
@@ -286,7 +284,9 @@ class find_data:
                 launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
                 launch_data = self.find_coincidences(bbox, 0, 1, launch_time, launch_data, site, 20)
 
-            sites_data[site]["Targets"] = int(len(launch_data))
+            sites_data[site]["Targets"] = len(launch_data)
+            if len(launch_data) == 0:
+                continue
         
             self.retrieve_data(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "target")
 
@@ -297,35 +297,35 @@ class find_data:
             # Only look either side of the launches we found.
             times_to_check = [t["launch_time"] for t in launch_data]
             launch_data = []
-
             # The revisit time is latitude-dependent, so choose maximum 5 days either side.
             # We only find the nearest overpass anyway.
             for time in times_to_check:
 
+                launch_data_for_time = []
+                
                 # First check 5 days either side with cloud cover at 20%
-                launch_data = self.find_coincidences(bbox, -120, -5, time, launch_data, site, 20)
-                if len(launch_data) == 0:
-                    launch_data = self.find_coincidences(bbox, 5, 120, time, launch_data, site, 20)
+                launch_data_for_time  = self.find_coincidences(bbox, -120, -5, time, launch_data_for_time, site, 20)
+                if len(launch_data_for_time ) == 0:
+                    launch_data_for_time  = self.find_coincidences(bbox, 5, 120, time, launch_data_for_time, site, 20)
                     
-                if len(launch_data) > 0:
-                    break
+                if len(launch_data_for_time ) > 0:
+                    launch_data.extend(launch_data_for_time)
+                    sites_data[site]["References"] = len(launch_data_for_time )
+                    continue
 
                 # Then repeatedly widen the time window at 50% cloud cover until a match is found
                 window_start = 5
                 window_size = 115
-                while len(launch_data) == 0:
+                while len(launch_data_for_time) == 0:
                     window_end = window_start + window_size
-                    launch_data = self.find_coincidences(bbox, -window_end, -window_start, time, launch_data, site, 50)
-                    if len(launch_data) == 0:
-                        launch_data = self.find_coincidences(bbox, window_start, window_end, time, launch_data, site, 50)
+                    launch_data_for_time = self.find_coincidences(bbox, -window_end, -window_start, time, launch_data_for_time, site, 50)
+                    if len(launch_data_for_time) == 0:
+                        launch_data_for_time = self.find_coincidences(bbox, window_start, window_end, time, launch_data_for_time, site, 50)
                     window_start = window_end
                     window_size = 120
                 
-                break
-
-            print(launch_data)
-
-            sites_data[site]["References"] = int(len(launch_data))
+                launch_data.extend(launch_data_for_time)
+                sites_data[site]["References"] = len(launch_data)
             
             self.retrieve_data(bbox, None, None, launch_data, site, loc_name, lat_range, lon_range, "reference")
 
