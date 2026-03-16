@@ -15,6 +15,9 @@ import xarray as xr
 from tqdm import tqdm
 from utils import build_grid
 import pandas as pd
+import argparse
+import ee
+from google.oauth2 import service_account
 
 # Units:
 # DN = 10000 * REFLECTANCE
@@ -45,9 +48,11 @@ import pandas as pd
 # 1=has data
 class find_data:
 
-    def __init__(self):
+    def __init__(self, platform):
         """This sets up the class"""
 
+        self.platform = platform
+        
         # Target resolutions of output
         # (60 m for B01 or UB and 10 m for B02 or blue band):
         # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
@@ -85,100 +90,120 @@ class find_data:
         self.evalscript_scl   = load_evalscript("evalscript_scl")
 
     def find_coincidences(self, bbox, deltat_minus, deltat_plus, launch_time, launch_data, site, cloud_cover):
-        """ This functions checks if there's a Sentinel-2 overpass within a certain time period
-            and if so, checks the cloud cover from the scene classification layer. 
-            If the cloud cover is less than 20%, it returns the launch time, cloud cover, and time difference between overpass and launch, 
-            as well as the scene classification data for that overpass."""
+        """ This functions checks if there's any overpasses within a certain time period with a cloud cover threshold.
+            It returns the launch time, cloud cover, and time difference between overpass and launch for any remaining matches.
+            
+            bbox: [min_lon, min_lat, max_lon, max_lat]
+            deltat_minus: hours before launch (negative, e.g. -1)
+            deltat_plus:  hours after launch (positive, e.g. +1)""" 
 
         # First query if there's data on this day to minimise queries.
         # This is searching the level 1 (raw) data.
         time_start =  (launch_time + timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
         time_end   =  (launch_time + timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        search_iterator = self.catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
-        results = list(search_iterator)
-        if not results:
-            return launch_data 
-        
-        # Each tile is part of the complete datatake, split into tiles.
-        # Each tile is 110x110km2 on a 100x100km2 grid, so with a 10km overlap.
-        # Therefore sometimes the site of interest is in the overlap, but its essentially the same data.
-        # So we only want to keep multiple overpasses if they are from different platforms. 
-        # Keep only the earliest result per platform (i.e. one per overpass).
-        platforms = list(result["properties"]["platform"] for result in results)
-        times     = list(result["properties"]["datetime"] for result in results)
-        unique_platforms = np.unique(platforms)
+        if self.platform == "ls":
+            region = ee.Geometry.Rectangle([bbox.min_x, bbox.min_y, bbox.max_x, bbox.max_y])
+            # Merge Landsat 8 and 9 Level 1 collections
+            l8 = ee.ImageCollection('LANDSAT/LC08/C02/T1').filterBounds(region).filterDate(time_start, time_end)
+            l9 = ee.ImageCollection('LANDSAT/LC09/C02/T1').filterBounds(region).filterDate(time_start, time_end)
+            combined = l8.merge(l9)
 
-        earliest_per_platform = {}
-        for idx, (platform, time) in enumerate(zip(platforms, times)):
-            if platform not in earliest_per_platform or time < earliest_per_platform[platform][1]:
-                earliest_per_platform[platform] = (idx, time)
-        results_indexed = [results[idx] for idx, _ in earliest_per_platform.values()]
+            results = combined.getInfo()['features']
+            if not results:
+                return launch_data
 
-        if len(results_indexed) > 1:
-            print(f"{len(results_indexed)} overpasses found from {unique_platforms}.")
-
-        # Set up the dictionary to contain all the information about the overpasses found.
-        launch_data_dict = {"launch_time": launch_time,
-                            "cloud_prop": [],
-                            "delta_t_secs": []
-                            }
-        
-        #for res in self.target_res:
-        #    launch_data_dict[str(res)] = []
-
-        # Loop over each overpass and check for cloud cover.
-        for result in results_indexed:
-
-            overpass_dt = datetime.fromisoformat(result['properties']['datetime'])
-            delta_t_secs = (overpass_dt - launch_time).total_seconds()
-            op_time_start = (overpass_dt - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
-            op_time_end   = (overpass_dt + timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-            # https://sentiwiki.copernicus.eu/web/s2-processing
-            # The classification map is produced for each Sentinel-2 Level-2A product at 20 m and resamples to 60 m resolution.
-            # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
-            # Request at 20m resolution to check cloud cover, then resample at 60m and 10m.
-            request_scl_data = SentinelHubRequest(
-                data_folder='temp_dir', evalscript=self.evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=20), config=self.config,
-                input_data=[
-                    SentinelHubRequest.input_data(
-                        data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=self.config.sh_base_url),
-                        time_interval=(op_time_start, op_time_end),
-                        other_args={"id":"S2L2A"},
-                    )
-                ],
-                responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-            )
+            platforms = [r['properties']['SPACECRAFT_ID'] for r in results]
+            print(platforms)
+            sys.exit()
             
-            scl20 = request_scl_data.get_data()[0]
-            if scl20.size == 0:
-                continue
+        
+        else:
+
+            search_iterator = self.catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
+            results = list(search_iterator)
+            if not results:
+                return launch_data 
             
-            # Calculate cloud cover from scene classification data.
-            cld_mask = np.isin(scl20, [3, 8, 9, 10])
-            cloud_prop = cld_mask.mean() * 100
-            if cloud_prop > cloud_cover:
-                continue
+            # Each tile is part of the complete datatake, split into tiles.
+            # Each tile is 110x110km2 on a 100x100km2 grid, so with a 10km overlap.
+            # Therefore sometimes the site of interest is in the overlap, but its essentially the same data.
+            # So we only want to keep multiple overpasses if they are from different platforms. 
+            # Keep only the earliest result per platform (i.e. one per overpass).
+            platforms = list(result["properties"]["platform"] for result in results)
+            times     = list(result["properties"]["datetime"] for result in results)
+            unique_platforms = np.unique(platforms)
+
+            earliest_per_platform = {}
+            for idx, (platform, time) in enumerate(zip(platforms, times)):
+                if platform not in earliest_per_platform or time < earliest_per_platform[platform][1]:
+                    earliest_per_platform[platform] = (idx, time)
+            results_indexed = [results[idx] for idx, _ in earliest_per_platform.values()]
+
+            if len(results_indexed) > 1:
+                print(f"{len(results_indexed)} overpasses found from {unique_platforms}.")
+
+            # Set up the dictionary to contain all the information about the overpasses found.
+            launch_data_dict = {"launch_time": launch_time,
+                                "cloud_prop": [],
+                                "delta_t_secs": []
+                                }
+            
+            #for res in self.target_res:
+            #    launch_data_dict[str(res)] = []
+
+            # Loop over each overpass and check for cloud cover.
+            for result in results_indexed:
+
+                overpass_dt = datetime.fromisoformat(result['properties']['datetime'])
+                delta_t_secs = (overpass_dt - launch_time).total_seconds()
+                op_time_start = (overpass_dt - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                op_time_end   = (overpass_dt + timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            
+                # https://sentiwiki.copernicus.eu/web/s2-processing
+                # The classification map is produced for each Sentinel-2 Level-2A product at 20 m and resamples to 60 m resolution.
+                # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
+                # Request at 20m resolution to check cloud cover, then resample at 60m and 10m.
+                request_scl_data = SentinelHubRequest(
+                    data_folder='temp_dir', evalscript=self.evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=20), config=self.config,
+                    input_data=[
+                        SentinelHubRequest.input_data(
+                            data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=self.config.sh_base_url),
+                            time_interval=(op_time_start, op_time_end),
+                            other_args={"id":"S2L2A"},
+                        )
+                    ],
+                    responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+                )
                 
-            print(f'Site = {site} on {launch_time}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {(delta_t_secs/60):.1f} mins.')
+                scl20 = request_scl_data.get_data()[0]
+                if scl20.size == 0:
+                    continue
+                
+                # Calculate cloud cover from scene classification data.
+                cld_mask = np.isin(scl20, [3, 8, 9, 10])
+                cloud_prop = cld_mask.mean() * 100
+                if cloud_prop > cloud_cover:
+                    continue
+                    
+                print(f'Site = {site} on {launch_time}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {(delta_t_secs/60):.1f} mins.')
 
-            launch_data_dict["cloud_prop"].append(cloud_prop)
-            launch_data_dict["delta_t_secs"].append(delta_t_secs)
+                launch_data_dict["cloud_prop"].append(cloud_prop)
+                launch_data_dict["delta_t_secs"].append(delta_t_secs)
 
-            # Resample the scl data to the target resolutions.
-            #da = xr.DataArray(scl20, dims=("y","x"))
-            #scl10 = da.isel(y=np.repeat(np.arange(da.sizes["y"]), 2),
-            #                x=np.repeat(np.arange(da.sizes["x"]), 2))  
-            #scl60 = (da
-            #        .coarsen(x=3, y=3, boundary="trim")
-            #        .reduce(lambda x, axis: stats.mode(x, axis=axis, keepdims=False).mode)
-            #    )
-            #launch_data_dict["10"].append(scl10) 
-            #launch_data_dict["60"].append(scl60) 
+                # Resample the scl data to the target resolutions.
+                #da = xr.DataArray(scl20, dims=("y","x"))
+                #scl10 = da.isel(y=np.repeat(np.arange(da.sizes["y"]), 2),
+                #                x=np.repeat(np.arange(da.sizes["x"]), 2))  
+                #scl60 = (da
+                #        .coarsen(x=3, y=3, boundary="trim")
+                #        .reduce(lambda x, axis: stats.mode(x, axis=axis, keepdims=False).mode)
+                #    )
+                #launch_data_dict["10"].append(scl10) 
+                #launch_data_dict["60"].append(scl60) 
 
-        if len(launch_data_dict["cloud_prop"]) > 0:
-            launch_data.append(launch_data_dict)
+            if len(launch_data_dict["cloud_prop"]) > 0:
+                launch_data.append(launch_data_dict)
                     
         return launch_data
     
@@ -257,7 +282,8 @@ class find_data:
         # Open the sites file.
         site_data = json.load(open("sites.json"))
         sites = list(site_data.keys()) 
-        sites = ["CC_LC40"]
+        sites = ["JQ_LC130"]
+        #sites = ["CC_LC40"]
         df_sites = pd.read_csv('coincidences.csv', index_col='Site')
         sites_data = df_sites.to_dict(orient='index')
 
@@ -414,8 +440,28 @@ class find_data:
         
         ds.to_netcdf("download/"+filename)
 
-if __name__ == "__main__":     
+if __name__ == "__main__":
+
+    # Set up the arguments for each function.
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-pt',   "--platform", default = "ls", help="Platform (Sentinel-2 - sn or Landsat - ls).")
+    args = parser.parse_args() 
+    
+    #Set up Google Earth Engine
+    if args.platform == 'ls':
+        key_path = '/home/ucfacb0/.config/earthengine/satroc-ef1c505b5935.json'
+        scopes = ['https://www.googleapis.com/auth/earthengine']
+
+        credentials = service_account.Credentials.from_service_account_file(key_path, scopes=scopes)
+        ee.Initialize(credentials, project='satroc')
+    
+    # Earth Access from NASA
+    # Google Earth Engine 
+    # Google Cloud (only Landsat 4-8)
+    # USGS
+    # Copernicus (Only January 2021 onwards)
+    # NASA
     
     #Loop over all years and run functions depending on input arguments.
-    LaunchData = find_data()  
+    LaunchData = find_data(args.platform)  
     LaunchData.data_search()
