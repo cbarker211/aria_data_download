@@ -46,6 +46,13 @@ from google.oauth2 import service_account
 # Data mask:
 # 0=nodata
 # 1=has data
+
+# Currently this searches for the launch overpass, and then searches for references before and after with minimal cloud cover.
+# But we need all instances of cloud-free overpasses with the launchpad so we can gather multiple potential reference scenes.
+# We then need to select reference overpasses that are most consistent with the target. 
+
+# A potential approach could be to find these as cloud-free scenes, but stick with a 20% or even 40% threshold for the coincidences with rocket launches. 
+# So 0% for references, and <20% for rockets?
 class find_data:
 
     def __init__(self, platform):
@@ -84,9 +91,7 @@ class find_data:
                 script = script.replace("BAND_PLACEHOLDER", band)
             return script
 
-        self.evalscript = {res: "" for res in self.target_res}
-        self.evalscript[60] = load_evalscript("evalscript_res", band="B01")
-        self.evalscript[10] = load_evalscript("evalscript_res", band="B02")
+        self.evalscript = {res: Path(f"evalscripts/evalscript_{res}.js").read_text() for res in self.target_res}
         self.evalscript_scl   = load_evalscript("evalscript_scl")
 
     def find_coincidences(self, bbox, deltat_minus, deltat_plus, launch_time, launch_data, site, cloud_cover):
@@ -219,7 +224,9 @@ class find_data:
         max_overpasses = max(len(l["delta_t_secs"]) for l in launch_data)
 
         sizes = {res: bbox_to_dimensions(bbox, resolution=res) for res in self.target_res}
-        data_out = {res: np.full((len(launch_data), max_overpasses, sizes[res][1], sizes[res][0], 5), np.nan, dtype=np.float32) for res in self.target_res}
+        data_out = {}
+        data_out[10] = np.full((len(launch_data), max_overpasses, sizes[10][1], sizes[10][0], 9), np.nan, dtype=np.float32)
+        data_out[60] = np.full((len(launch_data), max_overpasses, sizes[60][1], sizes[60][0], 10), np.nan, dtype=np.float32)
 
         for res in self.target_res:
 
@@ -229,6 +236,7 @@ class find_data:
                     continue
 
                 launch_time = launch["launch_time"]
+                print(launch_time, len(launch["delta_t_secs"]))
 
                 for overpass in range(len(launch["delta_t_secs"])):
 
@@ -263,12 +271,9 @@ class find_data:
                         raise ImportError("No data found.")
                     
                     # Save an image of the launch site overpass for a visual check.
-                    fig, ax = plt.subplots(2,figsize=(15, 10),subplot_kw={"projection": ccrs.PlateCarree()})
-                    extent = [lon_range[0], lon_range[1], lat_range[0], lat_range[1]]
-                    data = [requested_data[0][:,:,3], requested_data[0][:,:,4]]
-                    for i in range(2):
-                        ax[i].imshow(data[i], extent=extent, origin="upper",transform=ccrs.PlateCarree())
-                    
+                    fig, ax = plt.subplots(figsize=(15, 10),subplot_kw={"projection": ccrs.PlateCarree()})
+                    extent = (lon_range[0], lon_range[1], lat_range[0], lat_range[1])       
+                    ax.imshow(requested_data[0][:, :, 5], extent=extent, origin="upper",transform=ccrs.PlateCarree())
                     plt.savefig(f'site_images/{site.replace("/","")}_{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}_{overpass}.png')
                     plt.close()
             
@@ -282,8 +287,7 @@ class find_data:
         # Open the sites file.
         site_data = json.load(open("sites.json"))
         sites = list(site_data.keys()) 
-        sites = ["JQ_LC130"]
-        #sites = ["CC_LC40"]
+        sites = ["PP_Riyadh08"]
         df_sites = pd.read_csv('coincidences.csv', index_col='Site')
         sites_data = df_sites.to_dict(orient='index')
 
@@ -315,7 +319,7 @@ class find_data:
                 continue
         
             self.retrieve_data(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "target")
-
+            continue
             ############################################
             # Now look for overpasses before the launch. 
             ############################################
@@ -364,18 +368,22 @@ class find_data:
         filename = f'sentinel2-l1c-band-l2a-slc-{site.replace("/","")}-{res}-{scene}.nc'
         
         # Set up strings for saving to netCDF
-        variables = {10: ["sza", "vza", "dataMask", "B02", "B04"],
-                    60: ["sza", "vza", "dataMask", "B01", "B04"]}
-        units = ["degrees", "degrees", "unitless", "DN", "DN"]
-        long_name_strs = ['Sentinel-2-l1c solar zenith angle', 
-                    'Sentinel-2-l1c viewing zenith angle',
-                    'Sentinel-2-l1c data mask (0=nodata, 1=data)',
-                    '',
-                    'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)']
-        long_names = {10: long_name_strs,
-                        60: long_name_strs}
-        long_names[10][3] = 'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)'
-        long_names[60][3] = 'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)'
+        variables         = {10: ["saa", "sza", "vaa", "vza", "dataMask", "B02", "B03", "B04", "B08"],
+                             60: ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B08"]}
+        units             = {10: ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN"],
+                             60: ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN"]}
+        long_name_strs    = ['Sentinel-2-l1c solar azimuth angle', 
+                             'Sentinel-2-l1c solar zenith angle',
+                             'Sentinel-2-l1c viewing azimuth angle', 
+                             'Sentinel-2-l1c viewing zenith angle',
+                             'Sentinel-2-l1c data mask (0=nodata, 1=data)',
+                             'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
+                             'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
+                             'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
+                             'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)']
+        long_names        = {10: long_name_strs.copy(),
+                             60: long_name_strs.copy()}
+        long_names[60].insert(5, 'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)')
 
         y_coords  = np.arange(sizes[res][0], dtype=np.int32)
         x_coords  = np.arange(sizes[res][1], dtype=np.int32)
@@ -398,7 +406,7 @@ class find_data:
             data_vars[var] = xr.Variable(
                 dims=("time", "overpass", "lat", "lon"),
                 data=data_out[res][:,:,:,:,ind],
-                attrs={"long_name": long_names[res][ind], "units": units[ind]}
+                attrs={"long_name": long_names[res][ind], "units": units[res][ind]}
             )
 
         data_vars["cloud_prop"] = xr.Variable(
@@ -441,6 +449,8 @@ class find_data:
         ds.to_netcdf("download/"+filename)
 
 if __name__ == "__main__":
+
+    # TODO: Bands 2-4 and 8 are at 10m resolution, and 1 is at 60. We could just 
 
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
