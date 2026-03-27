@@ -1,12 +1,11 @@
-from datetime import datetime
 import numpy as np
 import argparse
 import requests
-from tqdm import tqdm
 from utils import scrape_jsr
 import pandas as pd
 import sys
 import json
+import matplotlib.pyplot as plt
 pd.set_option('display.max_rows', None)
 
 def clean_jsr_date(date):
@@ -58,6 +57,8 @@ class import_launches:
         ####################################################################
 
         df        = scrape_jsr("https://planet4589.org/space/gcat/tsv/launch/launch.tsv",self.session)
+        df_lvs    = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lvs.tsv",self.session)
+        df_stages = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/stages.tsv",self.session)
         df_points = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lp.tsv",self.session)
 
         # Filter the launches to remove unwanted entries.
@@ -90,6 +91,7 @@ class import_launches:
         df["Launch_Site"] = df["Launch_Site"].str.replace("?", "", regex=False).str.strip()
         df["Launch_Pad"] = df["Launch_Pad"].str.replace("?", "", regex=False).str.strip()
 
+        # Create a site lookup
         site_lookup = {}
         for _, row in df_points.iterrows():
             site_pad = f'{row["#Site"]}_{row["Code"].replace("?","")}'  
@@ -103,12 +105,38 @@ class import_launches:
                 "name": name
             }
 
+        # Create a stage propellant lookup 
+        stage_prop_mass_lookup = {}
+        for _, row in df_stages.iterrows():
+            stage_id = str(row["#Stage_Name"]).strip()
+            try:
+                launch_mass_kg = float(str(row["Launch_Mass"]).strip()) * 1000  # tonnes → kg
+                dry_mass_kg    = float(str(row["Dry_Mass"]).strip())
+                stage_prop_mass_lookup[stage_id] = round(launch_mass_kg - dry_mass_kg, 1)
+            except (ValueError, TypeError):
+                stage_prop_mass_lookup[stage_id] = None
+
+        # Build a lookup: (LV_Name, LV_Variant) → total propellant mass of stage 0 + stage 1
+        rocket_prop_cache = {}
+        df_lvs["Stage_No"] = df_lvs["Stage_No"].str.strip() # Remove whitespaces from the stage number
+        for key, group in df_lvs.groupby(["#LV_Name", "LV_Variant"]):
+
+            # First get only the boosters and first stage.            
+            booster_and_first = group[group["Stage_No"].isin(["-1", "0", "1"])]
+
+            # Now loop over the stages and add up the propellant mass.
+            total = 0.0
+            found_any = False
+            for _, row in booster_and_first.iterrows():
+                mass = stage_prop_mass_lookup.get(row["Stage_Name"].strip())
+                if mass is not None:
+                    total += mass * int(row["Multiplicity"])
+                    found_any = True
+            rocket_prop_cache[key] = round(total, 1) if found_any else 0
+
         ####################################################################
         # Extract the required launch activity data and convert to a dict.
         ####################################################################
-
-        # TODO: Save the rocket and possibly some indication of plume size?
-        # This could be total propellant mass, thrust, ...?
 
         launch_sites = {}
         for (site_code, pad_code), group in df.groupby(["Launch_Site", "Launch_Pad"]):
@@ -117,11 +145,18 @@ class import_launches:
             if site_pad not in site_lookup:
                 continue
 
+            prop_masses = [
+                rocket_prop_cache.get((str(row["LV_Type"]).strip(), str(row["Variant"]).strip().replace("?","")))
+                for _, row in group.iterrows()
+            ]
+
             launch_sites[site_pad] = {
                 "name": site_lookup[site_pad]["name"],
                 "lat":  site_lookup[site_pad]["lat"],
                 "lon":  site_lookup[site_pad]["lon"],
                 "launch_times": group["Launch_Date"].tolist(),
+                "launch_rockets": group["LV_Type"].tolist(),
+                "launch_prop_mass_kg": prop_masses,
             }
 
         with open("sites.json", "w") as f:

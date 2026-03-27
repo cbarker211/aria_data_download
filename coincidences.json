@@ -1,0 +1,158 @@
+{
+    "CC_LC40": {
+        "name": "Space Launch Complex 40, Cape Canaveral",
+        "lat": "28.5620",
+        "lon": "-80.5772",
+        "launch_times": [
+            "2017-12-15T15:36:09",
+            "2023-03-24T15:43:10",
+            "2025-02-21T15:19:00",
+            "2025-06-13T15:29:00"
+        ],
+        "launch_rockets": [
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0",
+            "372000.0",
+            "372000.0"
+        ]
+    },
+    "JQ_LC130": {
+        "name": "Pad 130 (ZK-1A) Jiuquan Space Center",
+        "lat": "40.8184",
+        "lon": "100.2242",
+        "launch_times": [
+            "2025-12-10T04:03:45"
+        ],
+        "launch_rockets": [
+            "Lijian-1"
+        ],
+        "launch_prop_mass_kg": [
+            "0"
+        ]
+    },
+    "JQ_LC43/94": {
+        "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
+        "lat": "40.9605",
+        "lon": "100.2980",
+        "launch_times": [
+            "2021-07-29T04:01:00",
+            "2023-02-24T04:01:00",
+            "2023-11-16T03:55:00",
+            "2025-03-15T04:11:00",
+            "2025-05-14T04:12:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 2D",
+            "Chang Zheng 2C",
+            "Chang Zheng 2C/YZ-1S",
+            "Chang Zheng 2D",
+            "Chang Zheng 2D"
+        ],
+        "launch_prop_mass_kg": [
+            "183200.0",
+            "143000.0",
+            "172000.0",
+            "183200.0",
+            "183200.0"
+        ]
+    },
+    "KSC_LC39A": {
+        "name": "Launch Complex 39A, NASA Kennedy Space Center, Florida",
+        "lat": "28.6083",
+        "lon": "-80.6041",
+        "launch_times": [
+            "2022-04-08T15:17:11",
+            "2022-10-05T16:00:57",
+            "2024-10-14T16:06:00"
+        ],
+        "launch_rockets": [
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon Heavy"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0",
+            "852822.0"
+        ]
+    },
+    "TNSC_Y": {
+        "name": "Yoshinobu Launch Complex, Osaki Site, Tanegashima Space Center",
+        "lat": "30.4008",
+        "lon": "130.9776",
+        "launch_times": [
+            "2023-01-26T01:50:21"
+        ],
+        "launch_rockets": [
+            "H-IIA 202"
+        ],
+        "launch_prop_mass_kg": [
+            "233000.0"
+        ]
+    },
+    "TYSC_LC16": {
+        "name": "Pad 16, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8681",
+        "lon": "111.5802",
+        "launch_times": [
+            "2020-11-06T03:19:15"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 6"
+        ],
+        "launch_prop_mass_kg": [
+            "79900.0"
+        ]
+    },
+    "TYSC_LC9": {
+        "name": "Pad 9, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8632",
+        "lon": "111.5895",
+        "launch_times": [
+            "2019-12-20T03:22:29",
+            "2021-09-07T03:01:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 4B",
+            "Chang Zheng 4C"
+        ],
+        "launch_prop_mass_kg": [
+            "183200.0",
+            "183200.0"
+        ]
+    },
+    "TYSC_LC9A": {
+        "name": "Pad 9A, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8585",
+        "lon": "111.5848",
+        "launch_times": [
+            "2024-05-07T03:21:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 6C"
+        ],
+        "launch_prop_mass_kg": [
+            "79900.0"
+        ]
+    },
+    "VS_SLC4E": {
+        "name": "Space Launch Complex 4-East, Vandenberg AFB",
+        "lat": "34.6320",
+        "lon": "-120.6106",
+        "launch_times": [
+            "2018-12-03T18:34:05"
+        ],
+        "launch_rockets": [
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0"
+        ]
+    }
+}
