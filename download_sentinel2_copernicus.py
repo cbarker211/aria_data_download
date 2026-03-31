@@ -554,8 +554,6 @@ class find_data:
                                   'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)'],
                              60: ['Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)']}
 
-        y_coords  = np.arange(sizes[res][0], dtype=np.int32)
-        x_coords  = np.arange(sizes[res][1], dtype=np.int32)
 
         # Work out the maximum number of overpasses for all the data searched.
         max_overpasses = max(len(l["delta_t_secs"]) for l in launch_data)
@@ -575,7 +573,7 @@ class find_data:
             else:
                 data = data_out[res][:, :, :, :]  
             data_vars[var] = xr.Variable(
-                dims=("time", "overpass", "lat", "lon"),
+                dims=("time", "overpass", "x", "y"),
                 data=data,
                 attrs={"long_name": long_names[res][ind], "units": units[res][ind]}
             )
@@ -601,8 +599,8 @@ class find_data:
             coords={
                 "time":      ("time",      times_np),
                 "overpass":  ("overpass",  np.arange(max_overpasses)),
-                "y":         ("y",         y_coords, {"long_name": "pixel row index", "units": "1"}),
-                "x":         ("x",         x_coords, {"long_name": "pixel col index", "units": "1"}),
+                "x":         ("x",         np.arange(sizes[res][1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
+                "y":         ("y",         np.arange(sizes[res][0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
                                                         "units": "degrees_north"}),
                 "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
@@ -644,7 +642,7 @@ class find_data:
             else:
                 data = data_out[res][:, :, :]  
             data_vars[var] = xr.Variable(
-                dims=("time", "lat", "lon"),
+                dims=("time", "x", "y"),
                 data=data,
                 attrs={"long_name": long_names[res][ind], "units": units[res][ind]}
             )
@@ -663,8 +661,8 @@ class find_data:
             data_vars=data_vars,
             coords={
                 "time":      ("time",      times_np),
-                "y":         ("y",         np.arange(sizes[res][0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "x":         ("x",         np.arange(sizes[res][1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
+                "y":         ("y",         np.arange(sizes[res][0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
                                                         "units": "degrees_north"}),
                 "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
