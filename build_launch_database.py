@@ -36,7 +36,7 @@ def clean_jsr_date(date):
 
 class import_launches:
     
-    def __init__(self,start_year,final_year):
+    def __init__(self,start_year):
         """This function sets up the class.
 
         Args:
@@ -45,7 +45,6 @@ class import_launches:
         """        
         
         self.start_year = start_year
-        self.final_year = final_year
         self.session = requests.Session()
 
     def get_launch_info_jsr(self):
@@ -62,16 +61,17 @@ class import_launches:
         df_points = scrape_jsr("https://planet4589.org/space/gcat/tsv/tables/lp.tsv",self.session)
 
         # Filter the launches to remove unwanted entries.
-        df = df[df["#Launch_Tag"].str[:4].astype(int).between(self.start_year, self.final_year)]
+        df = df[df["#Launch_Tag"].str[:4].astype(int) >= self.start_year]
         df = df[~df["LaunchCode"].str.startswith("M")]                      # No military launches. 
         is_orbital = df["#Launch_Tag"].str[5].str.isdigit().fillna(False)   # Only include orbital launches.
         special_groups = df["Group"].str.startswith(("BLOR"))               # But always keep space tourism from Blue Origin.
         df = df[is_orbital | special_groups]
         df = df[df["Ascent_Site"] == "-"]                                   # Exclude air-launched rockets
         df = df[df["Platform"] == "-"]                                      # Exclude ocean-launched rockets
+        df = df[df["LV_Type"] != "R-UNK"]                                   # Exclude unknown debris.
         
         df = df.reset_index()
-        print("Found",len(df),"launches from JSR for the years",self.start_year,"to",self.final_year)
+        print(f"Found {len(df)} launches from JSR since {self.start_year}.")
 
         # Convert the launch date to a datetime, and filter out uncertain launches or launches with no timings.
         df["Launch_Date_raw"] = df["Launch_Date"].copy() # Save a copy of the raw date for debugging.
@@ -166,17 +166,13 @@ if __name__ == "__main__":
     
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
-    parser.add_argument('-sy',   "--start_year",   default = "2015", choices=str(np.arange(2015,2026)), help='Start Year (2015-2025).')
-    parser.add_argument('-fy',   "--final_year",   default = "2025", choices=str(np.arange(2015,2026)), help='Final Year (2015-2025).')
+    parser.add_argument('-sy',   "--start_year",   default = "2013", choices=str(np.arange(2013,2026)), help='Start Year (2013-2025).')
     args = parser.parse_args()
     
     # Sort out the year range.
     start_year = int(args.start_year)
-    final_year = int(args.final_year)
-    if start_year > final_year:
-        final_year = start_year + 1
-    print(f"Processing from year {start_year} to {final_year}.")  
+    print(f"Processing from {start_year} to present.")  
     
     #Loop over all years and run functions depending on input arguments.
-    LaunchData = import_launches(start_year,final_year)  
+    LaunchData = import_launches(start_year)  
     LaunchData.get_launch_info_jsr()

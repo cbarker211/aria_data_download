@@ -1,5 +1,5 @@
 #Stage_Name	Stage_Family	Stage_Manufacturer	Stage_Alt_Name	Length	Diameter	Launch_Mass	Dry_Mass	Thrust	Duration	Engine	NEng
-# Updated 2026 Mar 26 0126:23
+# Updated 2026 Apr  8 0024:24
 -	Unknown             	-	Dummy	-	-	-	       0 	       0.0 	   0.0 	-	 0
 ?	Unknown             	-	-	-	-	-	-	-	-	-	-
 N-1 Blok-A	N-1                 	OKB1	N-1 Blok A	 30.0 	14.00 	1870.0 	  130000 	   45300.0 	 110.0 	NK-15	30
@@ -67,6 +67,8 @@ Centaur T	Centaur             	GDA	Centaur	  9.0 	 4.30 	  23.8 	    2775 	     
 8S811	UR-200              	OKB52	Proton St2	 17.1 	 4.10 	 167.8 	   11700 	    2330.0 	 210.0 	RD-0211	 4
 8S812	Proton.St3          	OKB52	Proton St3	  6.9 	 4.10 	  50.6 	    4185 	     583.0 	 230.0 	RD-0210	 1
 8S812M	Proton.St3          	OKB52	Proton St3	  4.1 	 4.10 	  50.3 	    3700 	     583.0 	 230.0 	RD-0210	 1
+Soyuz-5 Stage 2	Soyuz5	PROG	-	  7.8 	 4.10 	  65.0 	    5900 	     588.6 	-	RD-0124MS	 1
+Soyuz-5 Stage 1	Soyuz5	PROG	-	 37.1 	 4.10 	 390.0 	   27700 	    7257.0 	-	RD-171MV	 1
 Briz-M	Briz                	KHRU	-	  2.8 	 4.10 	  22.1 	    2370 	      19.6 	3000.0 	S5.98M	 1
 H-II Stage 1	H2                  	MHITO	H-II	 34.4 	 4.00 	  98.0 	   11700 	    1080.0 	 346.0 	LE-7	 1
 H-IIA Stage 1	H2                  	MHITO	H-II	 37.2 	 4.00 	 114.0 	   13000 	    1100.0 	 390.0 	LE-7A	 1
@@ -171,6 +173,8 @@ CZ-2E Stage 2	CZ.St2              	CALT	L90-YF24B	 15.5 	 3.35 	  91.5 	    5500
 CZ-6A Stage 2	CZ.St2              	SAST	-	 11.5 	 3.35 	  71.0 	    6000 	     176.0 	-	YF-115	 1
 CZ-7 Stage 2	CZ.St2              	CALT	K3-2	 11.5 	 3.35 	  71.0 	    6000 	     720.0 	-	YF-115	 4
 CZ-8A Stage 2	CZ.St2              	CALT	H18-YF75	 12.4 	 3.35 	  21.0 	    2800 	     200.0 	 470.0 	YF-75H	 2
+Lijian-2 Stage 1	TL2	ZKYT	-	 26.0 	 3.35 	 170.0 	   17000 	    2500.0 	-	YF-102	 3
+Lijian-2 Stage 2	TL2	ZKYT	-	 13.0 	 3.35 	  90.0 	   10000 	     690.0 	-	YF-102V	 1
 TL2 Stage 1	TL2	TIANB	-	 25.0 	 3.35 	 100.0 	-	    1860.0 	-	YF-102	 3
 TL2 Stage 2	TL2	TIANB	-	  5.0 	 3.35 	  35.0 	-	     300.0 	-	TH-11	 3
 KSLV-II-1	KSLV2               	KARI	-	 20.0 	 3.30 	 300.0 	   10000 	    2900.0 	-	KRE-075	 4

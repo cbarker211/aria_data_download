@@ -1,5 +1,5 @@
 #Site	Code	UCode	Type	StateCode	TStart	TStop	ShortName	Name	Location	Longitude	Latitude	Error	Parent	ShortEName	EName	UName
-# Updated 2026 Mar 26 0126:23
+# Updated 2026 Apr  8 0024:24
 A51	RW14/32	-	LP	-	1955	*	Area 51 RW14/32	Runway 14/32, Groom Lake Air Force Base, Area 51, Nevada	Groom Lake, Nevada	   -115.8020 	   37.2375 	0.0001 	NRO	-	-	-
 A51	X1	-	LP	-	1967 Sep 28	1967 Sep 28	Drone 501 Drop	Accidental Drop Location, D-51B 501, Nevada	Groom Lake, Nevada	   -115.8000 	   38.1000 	0.2000 	NRO	-	-	-
 ABER	A	-	LP	-	-	-	Launch Site A	Skylark Tower, Apron A, RAF Aberporth	Aberporth	     -4.5734 	   52.1415 	0.0001 	RAE	-	-	-
@@ -1951,9 +1951,9 @@ JQ	LC43/96	-	LP	-	2022	-	JQ LC43/96	Area 43/96, Jiuquan Space Center	-	    100.2
 JQ	LC43/96A	-	LP	-	2022	-	JQ LC43/96A	Area 43/96A, Jiuquan Space Center	-	    100.2456 	   40.9149 	0.0002 	CN	-	-	-
 JQ	LC43/96B	-	LP	-	2025	-	JQ LC43/96B	Area 43/96B, Jiuquan Space Center	-	    100.2513 	   40.9203 	0.0002 	CN	-	-	-
 JQ	LC120	-	LP	-	2022	*	JQ    LC120	Pad 120 (TL-2)  Jiuquan Space Center	-	    100.1992 	   40.8556 	0.0002 	CN	-	-	-
+JQ	LC120B	-	LP	-	2022	*	JQ    LCTL3	TL-3 pad, Jiuquan Space Center	-	    100.1368 	   40.8071 	0.0002 	CN	-	-	-
 JQ	LC130	-	LP	-	2022	*	JQ    LC130	Pad 130 (ZK-1A) Jiuquan Space Center	-	    100.2242 	   40.8184 	0.0002 	CN	-	-	-
 JQ	LC140	-	LP	-	2022	*	JQ    LC140	Pad 140 (Lijian-2) Jiuquan Space Center	-	    100.2194 	   40.8174 	0.0002 	CN	-	-	-
-JQ	LC-TL3	-	LP	-	2022	*	JQ    LCTL3	TL-3 pad, Jiuquan Space Center	-	    100.1368 	   40.8071 	0.0002 	CN	-	-	-
 JQ	LC-CZ12A	-	LP	-	2025	*	JQ LC CZ12A	CZ-12a pad, Jiuquan Space Center	-	    100.2200 	   40.8910 	0.0020 	CN	-	-	中国商火酒泉研试发射工位
 KANSK	LC1	-	LP	-	1988	1989	KANSK	LC1, Kansk, Krasnoyarsk region	-	     95.7000 	   56.2000 	0.1000 	RVSN	-	-	-
 KARK	L1	-	LP	-	1965 May 25	1965 May 30	KARK  L1	Launcher 1, Cape Karikari, North Island, New Zealand	-	    173.4053 	  -34.8250 	0.0001 	NASA	-	-	-
