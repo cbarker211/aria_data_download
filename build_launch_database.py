@@ -1,7 +1,7 @@
 import numpy as np
 import argparse
 import requests
-from utils import scrape_jsr
+from python_scripts.utils import scrape_jsr
 import pandas as pd
 import sys
 import json

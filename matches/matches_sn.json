@@ -1,0 +1,22 @@
+{
+    "KSC_LC39A": {
+        "name": "Launch Complex 39A, NASA Kennedy Space Center, Florida",
+        "lat": "28.6083",
+        "lon": "-80.6041",
+        "launch_times": [
+            "2022-04-08T15:17:11",
+            "2022-10-05T16:00:57",
+            "2024-10-14T16:06:00"
+        ],
+        "launch_rockets": [
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon Heavy"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0",
+            "852822.0"
+        ]
+    }
+}

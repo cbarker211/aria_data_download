@@ -45,4 +45,4 @@ def build_grid(site_lat, site_lon):
     lon_km = haversine((loc_lat, lon_min), (loc_lat, lon_max))
     print(f"Bounding box size: {lat_km:.2f} km x {lon_km:.2f} km")
 
-    return bbox, lat_range, lon_range
+    return bbox, lat_range, lon_range, coords_wgs84
