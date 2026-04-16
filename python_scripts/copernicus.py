@@ -29,32 +29,33 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
     if not config.sh_client_id or not config.sh_client_secret:
         print("Warning! To use Process API, please provide the credentials (OAuth client ID and client secret).")
     
-    # First search over the time window.
-    search_iterator = catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end))
+    # First search over the time window. Set a coarse cloud cover filter to speed things up.
+    search_iterator = catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end), filter="eo:cloud_cover<30")
     results = list(search_iterator)
     if not results:
         return data_dict_list
 
-    # If we're looking at the target scene, isolate the best overpass.
-    if scene == "tar":
-        # Each tile is part of the complete datatake, split into tiles.
-        # Each tile is 110x110km2 on a 100x100km2 grid, so with a 10km overlap.
-        # Therefore sometimes the site of interest is in the overlap, but its essentially the same data.
-        # So we only want to keep multiple overpasses if they are from different platforms. 
-        # Keep only the earliest result per platform (i.e. one per overpass).
-        platforms = list(result["properties"]["platform"] for result in results)
-        times     = list(result["properties"]["datetime"] for result in results)
-        unique_platforms = np.unique(platforms)
+    # Isolate the best overpass.
+    # Each tile is part of the complete datatake, split into tiles.
+    # Each tile is 110x110km2 on a 100x100km2 grid, so with a 10km overlap.
+    # Therefore sometimes the site of interest is in the overlap, but its essentially the same data.
+    # So we only want to keep multiple overpasses if they are from different platforms. 
+    # Keep only the earliest result per platform (i.e. one per overpass).
 
-        earliest_per_platform = {}
-        for idx, (platform, time) in enumerate(zip(platforms, times)):
-            if platform not in earliest_per_platform or time < earliest_per_platform[platform][1]:
-                earliest_per_platform[platform] = (idx, time)
-        results_indexed = [results[idx] for idx, _ in earliest_per_platform.values()]
+    earliest_per_overpass= {}
+    for idx, result in enumerate(results):
 
-        if len(results_indexed) > 1:
-            print(results_indexed)
-            raise ValueError(f"{len(results_indexed)} overpasses found from {unique_platforms}.")
+        # Get time and round to nearest minute
+        dt = datetime.fromisoformat(result["properties"]["datetime"].replace("Z", "+00:00"))
+        dt_min = dt.replace(second=0, microsecond=0)
+
+        # Add to dict only if it's the earliest for that platform and minute.
+        key = (result["properties"]["platform"], dt_min)
+
+        if key not in earliest_per_overpass or dt < earliest_per_overpass[key][1]:
+            earliest_per_overpass[key] = (idx, dt)
+
+    results = [results[idx] for idx, _ in earliest_per_overpass.values()]
 
     iterator = tqdm(results) if len(results) > 1 else results
     # Loop over the results to find the overpasses with cloud cover under a threshold.
@@ -77,7 +78,7 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
         evalscript_scl = path.read_text()
 
         request_scl_data = SentinelHubRequest(
-            data_folder='temp_dir', evalscript=evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=20), config=config,
+            data_folder='temp_dir', evalscript=evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=60), config=config,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=config.sh_base_url),
@@ -87,25 +88,32 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
             ],
             responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
         )
-        scl20 = request_scl_data.get_data()[0]
-        if scl20.size == 0:
+        l2data = request_scl_data.get_data()[0]
+        if l2data.size == 0:
             continue
         
         # Calculate cloud cover from scene classification data.
-        cld_mask = np.isin(scl20, [3, 8, 9, 10])
+        scl = l2data[:, :]
+        cld_mask = np.isin(scl, [3, 8, 9, 10])
         cloud_prop = cld_mask.mean() * 100
         if cloud_prop > cloud_cover:
             continue
         
+        # Avoid scenes which has more than 20% invalid pixels.
+        invalid_mask = np.isin(scl, [0, 1])  
+        invalid_prop = (invalid_mask).mean() * 100   
+        if invalid_prop > 0.2:
+            continue
+
         data_dict_out["cloud_prop"] = cloud_prop
 
         if scene == "tar":
             delta_t_secs = (overpass_dt - data_dict["launch_time"]).total_seconds()
             data_dict_out["delta_t_secs"] = delta_t_secs
-            print(f'Site = {site}, Rocket = {data_dict["launch_rocket"]} on {data_dict["launch_time"]}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {(delta_t_secs/60):.1f} mins.')
+            print(f'Site = {site}, Rocket = {data_dict["launch_rocket"]} on {data_dict["launch_time"]}. Cloud-cover = {cloud_prop:.2f}%, ΔT = {(delta_t_secs/60):.1f} mins. Platform = {result["properties"]["platform"]}.')
         else:
             data_dict_out["overpass_time"] = overpass_dt
-            print(f'{overpass_dt}. Cloud-cover = {cloud_prop:.2f}%.')
+            print(f'{overpass_dt}. Cloud-cover = {cloud_prop:.2f}%. Platform = {result["properties"]["platform"]}.')
         data_dict_list.append(data_dict_out)
             
     return data_dict_list
@@ -121,7 +129,7 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
     if not config.sh_client_id or not config.sh_client_secret:
         print("Warning! To use Process API, please provide the credentials (OAuth client ID and client secret).")
 
-    evalscript = Path(f"evalscripts/evalscript_{res}.js").read_text()
+    evalscript = Path(f"evalscripts/evalscript.js").read_text()
     request_res_dep_data = SentinelHubRequest(
         data_folder='download', evalscript=evalscript,
         input_data=[
@@ -136,30 +144,29 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
     )
     # Get and check data:
     requested_data = request_res_dep_data.get_data()
-    data_out[res][ind,...] = requested_data[0]
+    data_out[ind,...] = requested_data[0]
     if len(requested_data) > 1:
         raise ValueError('More than one image returned. Please check the data and code.')
     elif len(requested_data) == None:
         raise ImportError("No data found.")
     
     # Save an image of the launch site overpass for a visual check.
-    if res == 10:
-        print("Printing image.")
-        fig, ax = plt.subplots(figsize=(15, 10))
-        extent = (lon_range[0], lon_range[1], lat_range[0], lat_range[1])       
-        rgb = np.stack([
-            requested_data[0][:, :, 7],  # Red
-            requested_data[0][:, :, 6],  # Green
-            requested_data[0][:, :, 5],  # Blue
-        ], axis=-1)
-        rgb = np.clip(rgb / 5000.0, 0, 1)
-        
-        ax.imshow(rgb, extent=extent)
+    print("Printing image.")
+    fig, ax = plt.subplots(figsize=(15, 10))
+    extent = (lon_range[0], lon_range[1], lat_range[0], lat_range[1])       
+    rgb = np.stack([
+        requested_data[0][:, :, 8],  # Red
+        requested_data[0][:, :, 7],  # Green
+        requested_data[0][:, :, 6],  # Blue
+    ], axis=-1)
+    rgb = np.clip(rgb / 5000.0, 0, 1)
+    
+    ax.imshow(rgb, extent=extent)
 
-        if not os.path.exists(f"site_images/{site.replace("/","")}"):
-            os.makedirs(f"site_images/{site.replace("/","")}")
+    if not os.path.exists(f"site_images/{site.replace("/","")}"):
+        os.makedirs(f"site_images/{site.replace("/","")}")
 
-        plt.savefig(f'site_images/{site.replace("/","")}/{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
-        plt.close()
+    plt.savefig(f'site_images/{site.replace("/","")}/{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
+    plt.close()
 
     return data_out

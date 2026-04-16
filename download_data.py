@@ -53,12 +53,9 @@ class find_data:
         self.platform = platform
         
         # Target resolutions of output
-        # (60 m for B01 or UB and 10 m for B02 or blue band):
-        # B01: ultrablue (442.7,442.3 nm) (S2A, S2B)
-        # B02: blue (492.4 nm, 492.1 nm)
-        self.target_res = [10, 60]
-
-        #evalscript = {res: Path(f"evalscripts/evalscript_{res}.js").read_text() for res in self.target_res}
+        if self.platform == "sn":
+            # 60 m for B01 or UB (442.7,442.3 nm) (S2A, S2B)
+            self.target_res = 60
 
     def target_main(self):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
@@ -170,7 +167,7 @@ class find_data:
                 time_start = datetime(self.year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
                 time_end   = datetime(self.year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
                 ref_data = []
-                ref_data = search_copernicus(ref_data, {}, time_start, time_end, bbox, "ref", 2, site)
+                ref_data = search_copernicus(ref_data, {}, time_start, time_end, bbox, "ref", 5, site)
 
                 if len(ref_data) == 0:
                     raise ValueError("No overpasses found.")
@@ -181,31 +178,28 @@ class find_data:
         # Data is a list where each item is a cloud_free overpass.
 
         # Build an array of dimensions (time, lat, lon, variable).
-        sizes = {res: bbox_to_dimensions(bbox, resolution=res) for res in self.target_res}
-        data_out = {}
-        data_out[10] = np.full((len(data), sizes[10][1], sizes[10][0], 9), np.nan, dtype=np.float32)
-        data_out[60] = np.full((len(data), sizes[60][1], sizes[60][0]), np.nan, dtype=np.float32)
+        size = bbox_to_dimensions(bbox, resolution=self.target_res)
+        data_out = np.full((len(data), size[1], size[0], 10), np.nan, dtype=np.float32)
         
         # Loop over resolutions and images.
-        for res in self.target_res:
-            for ind, image in enumerate(data):
+        for ind, image in enumerate(data):
 
-                if scene == "tar":
-                    time = image["launch_time"]
-                else:
-                    time = image["overpass_time"]
-                print(time)
-                time_start = (time+timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
-                time_end   = (time+timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if scene == "tar":
+                time = image["launch_time"]
+            else:
+                time = image["overpass_time"]
+            print(time)
+            time_start = (time+timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            time_end   = (time+timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-                if self.platform == "sn":
-                    data_out = download_copernicus(data_out, res, time, time_start, time_end, ind, lon_range, lat_range, bbox, site, scene)
-                
-            # Save data for this site
-            self.save_to_netcdf(site, res, sizes, data_out, data, lat_range, lon_range, loc_name, scene)
-            print(f'{site}-{res} written to disk')
+            if self.platform == "sn":
+                data_out = download_copernicus(data_out, self.target_res, time, time_start, time_end, ind, lon_range, lat_range, bbox, site, scene)
+            
+        # Save data for this site
+        self.save_to_netcdf(site, self.target_res, size, data_out, data, lat_range, lon_range, loc_name, scene)
+        print(f'{site}-{self.target_res} written to disk')
 
-    def save_to_netcdf(self, site, res, sizes, data_out, data, lat_range, lon_range, loc_name, scene):
+    def save_to_netcdf(self, site, res, size, data_out, data, lat_range, lon_range, loc_name, scene):
         
         # Set up strings for saving to netCDF
         if scene == "tar":
@@ -213,20 +207,18 @@ class find_data:
         else:
             filename = f'sentinel2-l1c-band-l2a-slc-{site.replace("/","")}-{res}-{scene}-{self.year}.nc'
         
-        variables         = {10: ["saa", "sza", "vaa", "vza", "dataMask", "B02", "B03", "B04", "B08"],
-                             60: ["B01"]}
-        units             = {10: ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN"],
-                             60: ["DN"]}
-        long_names        = {10: ['Sentinel-2-l1c solar azimuth angle', 
-                                  'Sentinel-2-l1c solar zenith angle',
-                                  'Sentinel-2-l1c viewing azimuth angle', 
-                                  'Sentinel-2-l1c viewing zenith angle',
-                                  'Sentinel-2-l1c data mask (0=nodata, 1=data)',
-                                  'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
-                                  'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
-                                  'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
-                                  'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)'],
-                             60: ['Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)']}
+        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B08"]
+        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN"]
+        long_names  = ['Sentinel-2-l1c solar azimuth angle', 
+                       'Sentinel-2-l1c solar zenith angle',
+                       'Sentinel-2-l1c viewing azimuth angle', 
+                       'Sentinel-2-l1c viewing zenith angle',
+                       'Sentinel-2-l1c data mask (0=nodata, 1=data)',
+                       'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)']
 
 
         # Create arrays for all overpasses.
@@ -234,15 +226,15 @@ class find_data:
 
         # Convert the data_out dict into xarray Variables with appropriate dimensions and attributes.
         data_vars = {}
-        for ind, var in enumerate(variables[res]):
-            if data_out[res].ndim == 4:
-                xrdata = data_out[res][..., ind]   # has variable axis
+        for ind, var in enumerate(variables):
+            if data_out.ndim == 4:
+                xrdata = data_out[..., ind]   # has variable axis
             else:
-                xrdata = data_out[res]  
+                xrdata = data_out 
             data_vars[var] = xr.Variable(
                 dims=("time", "x", "y"),
                 data=xrdata,
-                attrs={"long_name": long_names[res][ind], "units": units[res][ind]}
+                attrs={"long_name": long_names[ind], "units": units[ind]}
             )
 
         # For the target scene, we also need delta_t_secs.
@@ -269,8 +261,8 @@ class find_data:
             data_vars=data_vars,
             coords={
                 "time":      ("time",      times_np),
-                "x":         ("x",         np.arange(sizes[res][1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
-                "y":         ("y",         np.arange(sizes[res][0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
+                "x":         ("x",         np.arange(size[1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
+                "y":         ("y",         np.arange(size[0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
                                                         "units": "degrees_north"}),
                 "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
