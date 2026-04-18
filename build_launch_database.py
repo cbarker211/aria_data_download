@@ -85,6 +85,7 @@ class import_launches:
             "vals": [len(df), len(bad_rows), no_time_rows],
             })
         print(df_stats)
+        print(bad_rows["Launch_Date_raw"].values)
         df = df.dropna(subset=["Launch_Date"])
 
         # Remove question marks to consolidate launch sites.

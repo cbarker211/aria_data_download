@@ -1,5 +1,5 @@
 #Launch_Tag	Launch_JD	Launch_Date	LV_Type	Variant	Flight_ID	Flight	Mission	FlightCode	Platform	Launch_Site	Launch_Pad	Ascent_Site	Ascent_Pad	Apogee	Apoflag	Range	RangeFlag	Dest	OrbPay	Agency	LaunchCode	FailCode	Group	Category	LTCite	Cite	Notes
-# Updated 2026 Apr  8 0024:42
+# Updated 2026 Apr 17 0432:34
 1942-A01  	2430523.95 	1942 Jun 13 1052	A-4	-	2	-	-	-	-	HVP	P7	-	-	      1	 	    -	 	-	   0.000 	WEHR	MF	U	-	Test	TTaylor	-	-
 1942-A02  	2430587.97 	1942 Aug 16 1115	A-4	-	3	-	-	-	-	HVP	P7	-	-	     11	 	    -	 	-	   0.000 	WEHR	MF	U	-	Test	Stuhlinger	RocketTeam	-
 1942-S01  	2430636.12 	1942 Oct  3 1458	A-4	-	4	-	-	-	-	HVP	P7	-	-	     85	 	    -	 	-	   0.000 	WEHR	MS	-	-	Test	Stuhlinger	AE1961A	-
@@ -75440,7 +75440,7 @@
 2025-279 	2461011.22 	2025 Dec  1 1721	Vega C	-	VV28	Kompsat-7	Kompsat-7	-	-	CSG	ZLV	-	-	      -	 	    -	 	-	   1.810 	AE	OS	-	G	Sat SSO D	spaceflightnow.com	-	-
 2025-280 	2461011.73 	2025 Dec  2 0528:20	Falcon 9	FT5	572/B1081.20 F572	Starlink-334	Starlink Group 15-10	V2MO 15-10	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  16.100 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
 2025-281 	2461012.43 	2025 Dec  2 2218:50	Falcon 9	FT5	574/B1077.25 F573	Starlink-335	Starlink Group 6-95	V2MO 6-95	-	CC	LC40	-	-	      -	 	    -	 	-	  16.100 	SPX	OS	-	C	Sat LEO D	celestrak.org	-	-
-2025-282 	2461012.67 	2025 Dec  3 0400	Zhuque-3	-	Y1	Dummy payload	-	-	-	JQ	LC43/96B	-	-	      -	 	    -	 	-	   0.500 	LANDSP	OS	-	C	Sat SSO O	nasaspaceflight.com	-	-a
+2025-282 	2461012.67 	2025 Dec  3 0400	Zhuque-3	-	Y1	Dummy payload	-	-	-	JQ	LC43/96B	-	-	      -	 	    -	 	-	   0.500 	LANDSP	OS	-	C	Sat SSO O	nasaspaceflight.com	-	-
 2025-283 	2461014.36 	2025 Dec  4 2042:20	Falcon 9	FT5	575/B1097.4  F574	Starlink-336	Starlink Group 11-25	V2MO 11-25	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  16.100 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
 2025-284 	2461014.88 	2025 Dec  5 0900	Kuaizhou-1A	E	-	Jiaotong VDES A/B	Jiaotong VDES A/B	-	-	JQ	LC43/95A	-	-	      -	 	    -	 	-	   0.300 	EXPACE	OS	-	C	Sat SSO L	Wire	-	-
 2025-285 	2461015.83 	2025 Dec  6 0753	Chang Zheng 8A	-	Y5	WHDW 14	WHDW 14	-	-	HCSLS	LC1	-	-	      -	 	    -	 	-	   6.000 	CALT	OS	-	G	Sat LEO O	nasaspaceflight.com	-	-
@@ -75508,7 +75508,7 @@
 2026-021 	2461071.67 	2026 Jan 31 0401	Chang Zheng 2C	-	-	Alsat-3B	Alsat-3B	-	-	JQ	-	-	-	      -	 	    -	 	-	   2.500 	SAST	OS	-	G	Sat SSO O	nasaspaceflight.com	-	-
 2026-022 	2461074.16 	2026 Feb  2 1547:11	Falcon 9	FT5	599/B1071.31 F597	Starlink-354	Starlink Group 17-32	V2MO 17-32	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  15.500 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
 2026-S20  	2461074.93 	2026 Feb  3 1014:45	Scooter	-	HS-1	-	-	-	-	AND	-	-	-	     80	?	  300	?	-	   0.000 	HYPSA	MS	-	-	Test	andoyaspace.no	-	-
-2026-023 	2461077.29 	2026 Feb  5 1859	Soyuz-2-1B	Fregat	-	Kosmos-2600-2608?	Unknown	-	-	GIK-1	LC43/4?	-	-	      -	 	    -	 	-	   4.000 	VVKO	OS	-	G	Sat SSO O	nasaspaceflight.com	-	-
+2026-023 	2461077.29 	2026 Feb  5 1859	Soyuz-2-1B	Fregat	-            111-604	Kosmos-2600-2608?	Unknown	-	-	GIK-1	LC43/4?	-	-	      -	 	    -	 	-	   4.000 	VVKO	OS	-	G	Sat SSO O	nasaspaceflight.com	-	-
 2026-024 	2461078.67 	2026 Feb  7 0358?	Chang Zheng 2F	T	T6	CSSHQ	CSSHQ	-	-	JQ	LC43/91	-	-	      -	 	    -	 	-	   8.004 	CALT	OS	-	G	Sat SSO D	nasaspaceflight.com	-	-
 2026-025 	2461079.37 	2026 Feb  7 2058:09	Falcon 9	FT5	xxx/B1088.13 F598	Starlink-355	Starlink Group 17-33	V2MO 17-33	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  15.500 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
 2026-S05  	2461081.02 	2026 Feb  9 1229	Black Brant IX	-	NASA 36.390GE	BADASS	-	-	-	PF	-	-	-	    360	 	    -	 	-	   0.000 	GSFC	SS	-	GSFC/Samara	Auroral	www.nasa.gov	-	-
@@ -75599,7 +75599,6 @@
 2026-S74  	2461109.50 	2026 Mar 10	Khorramshahr	-	-	Vadeh Sadegh 4 Moj 35	Khorramshahr-4	-	-	IRAN	-	-	-	    300	?	 1000	 	Israel?	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-045 	2461109.68 	2026 Mar 10 0419:00	Falcon 9	FT5	xxx/B1085.14 F613	Echostar XXV	Echostar 25	-	-	CC	LC40	-	-	      -	 	    -	 	-	   6.800 	SPX	OS	-	C	Sat GTO D	SpaceX	-	-
 2026-S21  	2461109.75 	2026 Mar 10 0602:00	Improved Orion	-	SSC REXUS 35	EURO REXUS 35	-	-	-	ESR	-	-	-	     80	?	    -	 	ESR B	   0.000 	EUROL	SS	-	EUROL/	Tech	www.sscspace.com	-	-
-2026-S229  	2461110.48 	2026 Mar 10 2325	Terrier Imp Malemute	-	NASA 46.039IE	ICI-5b	-	-	-	AND	-	-	-	    300	?	    -	 	-	   0.000 	GSFC	SS	-	OSLO/Miloch	Auroral	andoyaspace.no	-	-
 2026-S75  	2461110.50 	2026 Mar 11	Kheibar Shekan	-	(many)	Vadeh Sadegh 4 Moj 36	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S76  	2461110.50 	2026 Mar 11	Kheibar Shekan	-	(many)	Vadeh Sadegh 4 Moj 37	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S78  	2461110.50 	2026 Mar 11	Kheibar Shekan	-	(many)	Vadeh Sadegh 4 Moj 38	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Bahrain	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
@@ -75613,6 +75612,7 @@
 2026-S83  	2461110.50 	2026 Mar 11	Emad	-	-	Vadeh Sadegh 4 Moj 40	-	-	-	IRAN	-	-	-	    400	?	 1700	?	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S77  	2461110.50 	2026 Mar 11	Khorramshahr	-	-	Vadeh Sadegh 4 Moj 37	Khorramshahr-4	-	-	IRAN	-	-	-	    300	?	 1000	 	Israel?	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S79  	2461110.50 	2026 Mar 11	Khorramshahr	-	-	Vadeh Sadegh 4 Moj 39	Khorramshahr-4	-	-	IRAN	-	-	-	    300	?	 1000	 	Gulf?	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
+2026-S229  	2461110.52 	2026 Mar 11 0025	Terrier Imp Malemute	-	NASA 46.039IE	ICI-5b	-	-	-	AND	-	-	-	    300	?	    -	 	-	   0.000 	GSFC	SS	-	OSLO/Miloch	Auroral	andoyaspace.no	-	-
 2026-S86  	2461111.50 	2026 Mar 12	Kheibar Shekan	-	(many)	Vadeh Sadegh 4 Moj 41	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S87  	2461111.50 	2026 Mar 12	Fattah-1	-	(many)	Vadeh Sadegh 4 Moj 41	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S92  	2461111.50 	2026 Mar 12	Kheibar Shekan	-	(many)	Vadeh Sadegh 4 Moj 42	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
@@ -75774,7 +75774,7 @@
 2026-S219  	2461133.50 	2026 Apr  3	Kheibar Shekan	?	-	Vadeh Sadegh 4 Moj 93	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S218  	2461133.50 	2026 Apr  3	Khorramshahr	-	-	Vadeh Sadegh 4 Moj 92	Khorramshahr-4	-	-	IRAN	-	-	-	    300	?	 1000	 	Israel?	   0.000 	IR	MS	-	-	Weapon	Wire	-	-                2026 Mar 13
 2026-F05  	2461133.68 	2026 Apr  3 0417?	Tianlong-3	-	Y1	-	-	-	-	JQ	LC120B	-	-	     40	?	    -	 	-	  10.000 	TIANB	OF	S1?	C	Sat LEO O	Wire	-	Stage 1 fail?
-2026-071 	2461133.77 	2026 Apr  3 0628	Soyuz-2-1A	Fregat	?	Meridian No. 21L?	Meridian No. 21L?	-	-	GIK-1	LC43/4	-	-	      -	 	    -	 	-	   2.000 	VVKO	OS	-	G	Sat MOL SO	nasaspaceflight.com	-	-
+2026-071 	2461133.77 	2026 Apr  3 0628	Soyuz-2-1A	Fregat	?            111-102	Meridian No. 21L?	Meridian No. 21L?	-	-	GIK-1	LC43/4	-	-	      -	 	    -	 	-	   2.000 	VVKO	OS	-	G	Sat MOL SO	nasaspaceflight.com	-	-
 2026-S221  	2461134.50 	2026 Apr  4	Kheibar Shekan	-	-	Vadeh Sadegh 4 Moj 94	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S224  	2461134.50 	2026 Apr  4	Kheibar Shekan	-	-	Vadeh Sadegh 4 Moj 95	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Gulf reg.	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S220  	2461134.50 	2026 Apr  4	Emad	-	-	Vadeh Sadegh 4 Moj 94	-	-	-	IRAN	-	-	-	    400	?	 1700	?	Israel	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
@@ -75786,6 +75786,17 @@
 2026-S227  	2461135.50 	2026 Apr  5	Ghadr	?	-	Vadeh Sadegh 4 Moj 97	-	-	-	IRAN	-	-	-	    400	?	 1700	?	Gulf reg.	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S228  	2461136.50 	2026 Apr  6	Kheibar Shekan	?	-	Vadeh Sadegh 4 Moj 98	-	-	-	IRAN	-	-	-	    300	?	 2000	 	Gulf reg.	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-S230  	2461137.50 	2026 Apr  7	Emad	?	-	Vadeh Sadegh 4 Moj 99	-	-	-	IRAN	-	-	-	    400	?	 1700	?	Gulf reg.	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
+2026-S231  	2461137.50 	2026 Apr  7	Ghadr	?	-	Vadeh Sadegh 4 Moj 100	-	-	-	IRAN	-	-	-	    400	?	 1700	?	Gulf reg.	   0.000 	IR	MS	-	-	Weapon	Wire	-	-
 2026-073 	2461137.62 	2026 Apr  7 0249:10	Falcon 9	FT5	xxx/B1103.1  F625	Starlink-379	Starlink Group 17-35	V2MO 17-35	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  15.500 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
 2026-074 	2461137.98 	2026 Apr  7 1133	Minotaur IV	-	9	STP-S29A	STP-S29A	-	-	VS	SLC8	-	-	      -	 	    -	 	-	   0.500 	NGIS	OS	-	CG/G	Sat LEO O	Wire	-	-
 2026-075 	2461138.06 	2026 Apr  7 1332	Chang Zheng 8	-	Y7	Qianfan Jigui 04	Qianfan Jigui 04	-	-	HCSLS	LC1	-	-	      -	 	    -	 	-	   6.000 	CALT	OS	-	G	Sat LEO O	nasaspaceflight.com	-	-
+2026-M04  	2461138.49 	2026 Apr  7 2350	KN-25	?	-	-	-	-	-	WONSAN?	-	-	-	     70	?	  240	?	-	   0.000 	KPA	MS	-	-	Test	Wire	-	-
+2026-M05  	2461138.49 	2026 Apr  7 2350	KN-25	?	-	-	-	-	-	WONSAN?	-	-	-	     70	?	  240	?	-	   0.000 	KPA	MS	-	-	Test	Wire	-	-
+2026-076 	2461139.32 	2026 Apr  8 1938	Chang Zheng 6A	-	Y17	WHDW 21	WHDW 21	-	-	TYSC	LC9A	-	-	      -	 	    -	 	-	   4.000 	SAST	OS	-	G	Sat LEO O	nasaspaceflight.com	-	-
+2026-077 	2461141.71 	2026 Apr 11 0504:19	Falcon 9	FT5	xxx/B1063.32 F626	Starlink-380	Starlink Group 17-21	V2MO 17-21	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  15.500 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
+2026-078 	2461141.98 	2026 Apr 11 1133	Jielong-3	-	Y11?	WHJSW-8	-	-	DFHT	YJ	LP3	-	-	      -	 	    -	 	-	   1.600 	CZHJ	OS	-	C	Sat SSO L	nasaspaceflight.com	-	-
+2026-079 	2461141.99 	2026 Apr 11 1141:21	Falcon 9	FT5	xxx/B1094.7  F627	Cygnus NG-24	Cygnus NG-24	-	-	CC	LC40	-	-	      -	 	    -	 	-	  12.000 	SPX	OS	-	CX	Sat ISS D	Wire	-	-
+2026-080 	2461144.67 	2026 Apr 14 0403?	Lijian-1	-	Y12	Jilin-1 GF07	-	-	-	JQ	LC130	-	-	      -	 	    -	 	-	   0.800 	ZKYT	OS	-	C	Sat SSO O	nasaspaceflight.com	-	-
+2026-081 	2461144.90 	2026 Apr 14 0933:10	Falcon 9	FT5	xxx/B1080.26 F628	Starlink-381	Starlink Group 10-24	V2MO 10-24	-	CC	LC40	-	-	      -	 	    -	 	-	  16.100 	SPX	OS	-	C	Sat LEO D	nasaspaceflight.com	-	-
+2026-082 	2461145.69 	2026 Apr 15 0429:50	Falcon 9	FT5	xxx/B1082.21 F629	Starlink-382	Starlink Group 17-27	V2MO 17-27	-	VSFBS	SLC4E	-	-	      -	 	    -	 	-	  15.500 	SPX	OS	-	C	Sat LEO D	SpaceX	-	-
+2026-083 	2461146.50 	2026 Apr 16	Soyuz-2-1B	-	-	Kosmos-2609?	Unknown	-	-	GIK-1	LC43/4	-	-	      -	 	    -	 	-	   6.000 	VVKO	OS	-	G	Sat MOL SO	nasaspaceflight.com	-	-

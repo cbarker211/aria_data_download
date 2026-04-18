@@ -13,6 +13,27 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from tqdm import tqdm
 import os
+import sys
+
+def get_scl(bbox, config, time_start, time_end):
+
+    path = Path(__file__).parent.parent / "evalscripts" / f"evalscript_scl.js"
+    evalscript_scl = path.read_text()
+
+    request_scl_data = SentinelHubRequest(
+        data_folder='temp_dir', evalscript=evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=60), config=config,
+        input_data=[
+            SentinelHubRequest.input_data(
+                data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=config.sh_base_url),
+                time_interval=(time_start, time_end),
+                other_args={"id":"S2L2A"},
+            )
+        ],
+        responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+    )
+    l2data = request_scl_data.get_data()[0]
+
+    return l2data
 
 def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, scene, cloud_cover, site):
     """ Searches the Copernicus Sentinel-2 catalog for overpasses matching the time window and location of interest, and filters them by cloud cover.
@@ -74,23 +95,9 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
         # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
         # Request at 20m resolution to check cloud cover.
 
-        path = Path(__file__).parent.parent / "evalscripts" / f"evalscript_scl.js"
-        evalscript_scl = path.read_text()
-
-        request_scl_data = SentinelHubRequest(
-            data_folder='temp_dir', evalscript=evalscript_scl, bbox=bbox, size=bbox_to_dimensions(bbox, resolution=60), config=config,
-            input_data=[
-                SentinelHubRequest.input_data(
-                    data_collection=DataCollection.SENTINEL2_L2A.define_from("s2l2a", service_url=config.sh_base_url),
-                    time_interval=(op_time_start, op_time_end),
-                    other_args={"id":"S2L2A"},
-                )
-            ],
-            responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-        )
-        l2data = request_scl_data.get_data()[0]
+        l2data = get_scl(bbox, config, op_time_start, op_time_end)
         if l2data.size == 0:
-            continue
+            raise ImportError("No data found.")
         
         # Calculate cloud cover from scene classification data.
         scl = l2data[:, :]
@@ -102,7 +109,11 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
         # Avoid scenes which has more than 20% invalid pixels.
         invalid_mask = np.isin(scl, [0, 1])  
         invalid_prop = (invalid_mask).mean() * 100   
-        if invalid_prop > 0.2:
+        if invalid_prop > 20:
+            if scene == "tar":
+                print(f"Scene on {data_dict["launch_time"]} has {invalid_prop:.2f}% invalid pixels. Skipping.")
+            if scene == "ref":
+                print(f"Scene on {overpass_dt} has {invalid_prop:.2f}% invalid pixels. Skipping.")
             continue
 
         data_dict_out["cloud_prop"] = cloud_prop
@@ -144,11 +155,18 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
     )
     # Get and check data:
     requested_data = request_res_dep_data.get_data()
-    data_out[ind,...] = requested_data[0]
+    data_out[ind,:,:,:-1] = requested_data[0]
     if len(requested_data) > 1:
         raise ValueError('More than one image returned. Please check the data and code.')
     elif len(requested_data) == None:
         raise ImportError("No data found.")
+
+    # Get the scl data 
+    l2data = get_scl(bbox, config, time_start, time_end)
+    if l2data.size == 0:
+        raise ImportError("No data found.")
+    data_out[ind,:,:,-1] = l2data
+    cld_mask = np.isin(l2data, [3, 8, 9, 10])
     
     # Save an image of the launch site overpass for a visual check.
     print("Printing image.")
@@ -163,10 +181,18 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
     
     ax.imshow(rgb, extent=extent)
 
-    if not os.path.exists(f"site_images/{site.replace("/","")}"):
-        os.makedirs(f"site_images/{site.replace("/","")}")
+    # Create red overlay (RGBA)
+    overlay = np.zeros((*cld_mask.shape, 4))  # 4 = RGBA
+    overlay[..., 0] = 1.0          # Red channel
+    overlay[..., 3] = cld_mask * 0.4  # Alpha (transparency)
 
-    plt.savefig(f'site_images/{site.replace("/","")}/{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
+    # Plot overlay
+    ax.imshow(overlay, extent=extent)
+
+    if not os.path.exists(f"site_images/{site.replace('/', '')}"):
+        os.makedirs(f"site_images/{site.replace('/', '')}")
+
+    plt.savefig(f'site_images/{site.replace('/', '')}/{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
     plt.close()
 
     return data_out

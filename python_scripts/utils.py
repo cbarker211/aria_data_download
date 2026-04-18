@@ -28,7 +28,7 @@ def build_grid(site_lat, site_lon):
     # Define extent around target scene to sample
     # (balance between encompassing the scene and amount of data permitted for 10m resolution):
 
-    dellat, dellon = 0.3, 0.3
+    dellat, dellon = 0.15, 0.15
     loc_lat  = float(site_lat)
     loc_lon  = float(site_lon)
     lon_min = loc_lon - dellon

@@ -57,41 +57,35 @@ class find_data:
             # 60 m for B01 or UB (442.7,442.3 nm) (S2A, S2B)
             self.target_res = 60
 
-    def target_main(self):
+    def target_main(self, site):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
 
         # Open the sites file.
         site_data = json.load(open("sites.json"))
 
         # Make the blank coincidence file if it doesn't already exist.
-        if f"matches_{self.platform}.json" not in os.listdir("./matches"):
-            site_data_coincidence = copy.deepcopy(site_data)
-            for site in site_data_coincidence:
-                site_data_coincidence[site]['launch_times'] = []
-                site_data_coincidence[site]['launch_rockets'] = []
-                site_data_coincidence[site]['launch_prop_mass_kg'] = []
-            # Save coincidences
-            with open(f"matches/matches_{self.platform}.json", "w") as f:
-                json.dump(site_data_coincidence, f, indent=4)
+        if f"matches_{self.platform}.json" in os.listdir("./matches"):
+            site_data_coincidence = json.load(open(f"./matches/matches_{self.platform}.json"))
+        else:
+            site_data_coincidence = {}
 
-        # Then open the coincidence file and get the list of sites from this.
-        site_data_coincidence = json.load(open(f"matches/matches_{self.platform}.json"))
-        sites = list(site_data_coincidence.keys())
+        if site == "all":
+            sites_to_process = site_data.keys()
+        else:
+            sites_to_process = [site]
 
-        # For now focus on one site.
-        sites = ["KSC_LC39A"]
-
-        # Loop over each site and each launch at that site, and look for data on that day.
-        for site in sites:
-
-            site_data_coincidence[site]['launch_times'] = []
-            site_data_coincidence[site]['launch_rockets'] = []
-            site_data_coincidence[site]['launch_prop_mass_kg'] = []
-
+        for site in sites_to_process:
             # Get the full spaceport name and list of launch times.
             loc_name       = site_data[site]['name']
             launch_metadata = list(zip(site_data[site]['launch_times'], site_data[site]['launch_rockets'], site_data[site]['launch_prop_mass_kg']))
             print(f"Searching at {loc_name}.")
+
+            site_data_coincidence[site] = {'name': loc_name,
+                                        'lat': site_data[site]["lat"],
+                                        'lon': site_data[site]["lon"],
+                                        'launch_times':         [],
+                                        'launch_rockets':      [],
+                                        'launch_prop_mass_kg': []}
 
             # Set up grid box around site:
             bbox, lat_range, lon_range, coords_wgs84 = build_grid(site_data[site]['lat'], site_data[site]['lon'])   
@@ -117,18 +111,17 @@ class find_data:
                                         }
 
                     # TODO: Eventually we want to be able to handle multiple data sources here, and keep the top script constant.
-                    launch_data = search_copernicus(launch_data, launch_data_dict, time_start, time_end, bbox, "tar", 20, site)
+                    launch_data = search_copernicus(launch_data, launch_data_dict, time_start, time_end, bbox, "tar", 10, site)
 
-                if len(launch_data) == 0:
-                    continue
+                if len(launch_data) > 0:
 
-                # Write matched launches into coincidence dict using original indices
-                for entry in launch_data:
-                    site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
-                    site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
-                    site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
-                
-                self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "tar")
+                    # Write matched launches into coincidence dict using original indices
+                    for entry in launch_data:
+                        site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
+                        site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
+                        site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
+                    
+                    self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "tar")
 
         # Remove sites where no coincidences were found.
         site_data_coincidence = {site: data
@@ -138,19 +131,19 @@ class find_data:
         with open(f"matches/matches_{self.platform}.json", "w") as f:
             json.dump(site_data_coincidence, f, indent=4)
 
-    def ref_main(self):
+    def ref_main(self, site):
         """This function downloads the Sentinel-2 data for a launch site over a specified year."""
 
         # Open the sites file.
-        #site_data = json.load(open(f"matches/matches_{self.platform}.json"))
-        site_data = json.load(open("coincidences.json"))
-        sites = list(site_data.keys())
+        site_meta = json.load(open("sites.json"))
+        site_data = json.load(open(f"matches/matches_{self.platform}.json"))
 
-        # For now focus on one site.
-        sites = ["KSC_LC39A"]
+        if site == "all":
+            sites_to_process = site_data.keys()
+        else:
+            sites_to_process = [site]
 
-        for site in sites:
-            print(site)
+        for site in sites_to_process:
 
             launch_years = [int(date[:4]) for date in site_data[site]['launch_times']]
             unique_launch_years = sorted(list(set(launch_years)))
@@ -159,15 +152,14 @@ class find_data:
                 self.year = year
 
                 # Get the full spaceport name and list of launch times.
-                loc_name = site_data[site]['name']
+                loc_name = site_meta[site]['name']
                 print(f"Searching at {loc_name}.")
 
                 # Set up grid box around site:
-                bbox, lat_range, lon_range, _ = build_grid(site_data[site]['lat'], site_data[site]['lon'])  
+                bbox, lat_range, lon_range, _ = build_grid(site_meta[site]['lat'], site_meta[site]['lon'])  
                 time_start = datetime(self.year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
                 time_end   = datetime(self.year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
-                ref_data = []
-                ref_data = search_copernicus(ref_data, {}, time_start, time_end, bbox, "ref", 5, site)
+                ref_data = search_copernicus([], {}, time_start, time_end, bbox, "ref", 5, site)
 
                 if len(ref_data) == 0:
                     raise ValueError("No overpasses found.")
@@ -178,8 +170,8 @@ class find_data:
         # Data is a list where each item is a cloud_free overpass.
 
         # Build an array of dimensions (time, lat, lon, variable).
-        size = bbox_to_dimensions(bbox, resolution=self.target_res)
-        data_out = np.full((len(data), size[1], size[0], 10), np.nan, dtype=np.float32)
+        self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
+        data_out = np.full((len(data), self.height, self.width, 11), np.nan, dtype=np.float32)
         
         # Loop over resolutions and images.
         for ind, image in enumerate(data):
@@ -196,19 +188,19 @@ class find_data:
                 data_out = download_copernicus(data_out, self.target_res, time, time_start, time_end, ind, lon_range, lat_range, bbox, site, scene)
             
         # Save data for this site
-        self.save_to_netcdf(site, self.target_res, size, data_out, data, lat_range, lon_range, loc_name, scene)
+        self.save_to_netcdf(site, self.target_res, data_out, data, lat_range, lon_range, loc_name, scene)
         print(f'{site}-{self.target_res} written to disk')
 
-    def save_to_netcdf(self, site, res, size, data_out, data, lat_range, lon_range, loc_name, scene):
+    def save_to_netcdf(self, site, res, data_out, data, lat_range, lon_range, loc_name, scene):
         
         # Set up strings for saving to netCDF
         if scene == "tar":
-            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace("/","")}-{res}-{scene}.nc'
+            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}.nc'
         else:
-            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace("/","")}-{res}-{scene}-{self.year}.nc'
+            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}-{self.year}.nc'
         
-        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B08"]
-        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN"]
+        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B08","scl"]
+        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN","unitless"]
         long_names  = ['Sentinel-2-l1c solar azimuth angle', 
                        'Sentinel-2-l1c solar zenith angle',
                        'Sentinel-2-l1c viewing azimuth angle', 
@@ -218,7 +210,8 @@ class find_data:
                        'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)']
+                       'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)']
 
 
         # Create arrays for all overpasses.
@@ -232,7 +225,7 @@ class find_data:
             else:
                 xrdata = data_out 
             data_vars[var] = xr.Variable(
-                dims=("time", "x", "y"),
+                dims=("time", "y", "x"),
                 data=xrdata,
                 attrs={"long_name": long_names[ind], "units": units[ind]}
             )
@@ -261,8 +254,8 @@ class find_data:
             data_vars=data_vars,
             coords={
                 "time":      ("time",      times_np),
-                "x":         ("x",         np.arange(size[1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
-                "y":         ("y",         np.arange(size[0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
+                "x":         ("x",         np.arange(self.width, dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
+                "y":         ("y",         np.arange(self.height, dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
                                                         "units": "degrees_north"}),
                 "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
@@ -271,15 +264,16 @@ class find_data:
             attrs={"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}"}
             )
         
-        if not os.path.exists(f"download/{site.replace("/","")}"):
-            os.makedirs(f"download/{site.replace("/","")}")
-        ds.to_netcdf(f"download/{site.replace("/","")}/"+filename)
+        if not os.path.exists(f"download/{site.replace('/', '')}"):
+            os.makedirs(f"download/{site.replace('/', '')}")
+        ds.to_netcdf(f"download/{site.replace('/', '')}/"+filename)
 
 if __name__ == "__main__":
 
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
     parser.add_argument('-pt',  "--platform",    default = "sn",      help="Platform (Sentinel-2 - sn, Landsat - ls, PACE/OLI - pace).")
+    parser.add_argument('-site',"--site",        default = "all",     help="Launch site.")
     parser.add_argument('-tar', "--save_target", action='store_true', help='Save target data for the year.')
     parser.add_argument('-ref', "--save_refs",   action='store_true', help='Save reference data for the year.')
     args = parser.parse_args() 
@@ -287,6 +281,6 @@ if __name__ == "__main__":
     #Loop over all years and run functions depending on input arguments.
     LaunchData = find_data(args.platform) 
     if args.save_target:
-        LaunchData.target_main()
+        LaunchData.target_main(args.site)
     if args.save_refs:
-        LaunchData.ref_main()
+        LaunchData.ref_main(args.site)
