@@ -28,7 +28,7 @@ def build_grid(site_lat, site_lon):
     # Define extent around target scene to sample
     # (balance between encompassing the scene and amount of data permitted for 10m resolution):
 
-    dellat, dellon = 0.15, 0.15
+    dellat, dellon = 0.02, 0.02
     loc_lat  = float(site_lat)
     loc_lon  = float(site_lon)
     lon_min = loc_lon - dellon
@@ -36,6 +36,7 @@ def build_grid(site_lat, site_lon):
     lon_max = loc_lon + dellon
     lat_max = loc_lat + dellat
     coords_wgs84 = (lon_min, lat_min, lon_max, lat_max)
+    bbox_gee = [lon_min, lat_min, lon_max, lat_max]  # [west, south, east, north]
     bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
     lat_range = np.array([lat_min, lat_max], dtype=np.float64)  # [lat_min, lat_max]
     lon_range = np.array([lon_min, lon_max], dtype=np.float64)  # [lon_min, lon_max]
@@ -45,4 +46,4 @@ def build_grid(site_lat, site_lon):
     lon_km = haversine((loc_lat, lon_min), (loc_lat, lon_max))
     print(f"Bounding box size: {lat_km:.2f} km x {lon_km:.2f} km")
 
-    return bbox, lat_range, lon_range, coords_wgs84
+    return bbox, lat_range, lon_range, bbox_gee

@@ -6,10 +6,13 @@ import xarray as xr
 from tqdm import tqdm
 from python_scripts.utils import build_grid
 from python_scripts.copernicus import search_copernicus, download_copernicus
+from python_scripts.m2m import search_landsat, sendRequest
+from python_scripts.gee import search_gee
 import argparse
 import copy
 import os
 import sys
+import ee
 
 # Units:
 # DN = 10000 * REFLECTANCE
@@ -57,6 +60,26 @@ class find_data:
             # 60 m for B01 or UB (442.7,442.3 nm) (S2A, S2B)
             self.target_res = 60
 
+        elif self.platform == "ls":
+            #username = "connorbarker"
+            #token = np.loadtxt("/home/ucfacb0/.config/.m2m", dtype=str).item()        
+            #serviceUrl = "https://m2m.cr.usgs.gov/api/api/json/stable/"
+            #payload = {'username' : username, 'token' : token}
+            #self.apiKey = sendRequest(serviceUrl + "login-token", payload)  
+
+            key_path = '/home/ucfacb0/.config/earthengine/satroc-ef1c505b5935.json'
+
+            credentials = ee.ServiceAccountCredentials(
+                email='ee-satroc@satroc.iam.gserviceaccount.com',
+                key_file=key_path
+            )
+
+            ee.Initialize(credentials=credentials, project='satroc')
+
+            ls8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
+            ls9 = ee.ImageCollection('LANDSAT/LC09/C02/T1_TOA')
+            self.landsat = ls8.merge(ls9)
+
     def target_main(self, site):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
 
@@ -81,47 +104,59 @@ class find_data:
             print(f"Searching at {loc_name}.")
 
             site_data_coincidence[site] = {'name': loc_name,
-                                        'lat': site_data[site]["lat"],
-                                        'lon': site_data[site]["lon"],
-                                        'launch_times':         [],
-                                        'launch_rockets':      [],
-                                        'launch_prop_mass_kg': []}
+                                           'lat': site_data[site]["lat"],
+                                           'lon': site_data[site]["lon"],
+                                           'launch_times':         [],
+                                           'launch_rockets':      [],
+                                           'launch_prop_mass_kg': []}
 
             # Set up grid box around site:
-            bbox, lat_range, lon_range, coords_wgs84 = build_grid(site_data[site]['lat'], site_data[site]['lon'])   
+            launch_lat = float(site_data[site]['lat'])
+            launch_lon = float(site_data[site]['lon'])
+            bbox, lat_range, lon_range, bbox_gee = build_grid(launch_lat, launch_lon)
+            region = ee.Geometry.Rectangle(bbox_gee)
 
             # Check for which times have an overpass within 1 hour with low cloud cover.
             launch_data = []
 
-            if self.platform == "pace":
-                pass
+            for i, (time, rocket, prop) in tqdm(enumerate(launch_metadata), total = len(launch_metadata), desc="Processing rows"):
 
-            elif self.platform == "sn":
+                launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
+
+                # Set up the dictionary to contain all the information about the overpasses found.
+                launch_data_dict = {"launch_time": launch_time,
+                                    "launch_rocket": rocket,
+                                    "launch_prop": prop
+                                    }
+
+                ######################
+                # Search for matches.
+                ######################
+                if self.platform == "ls":
+                    #launch_data = search_landsat(launch_data, launch_data_dict, launch_lat, launch_lon, "tar", 10, site, self.apiKey)
+                    #launch_data = search_copernicus(launch_data, launch_data_dict, bbox, "tar", 10, site, self.platform)
+                    launch_data  = search_gee(launch_data, launch_data_dict, self.landsat, region, "tar", 10, site)
+
+                elif self.platform == "sn":
                 
-                for i, (time, rocket, prop) in tqdm(enumerate(launch_metadata), total = len(launch_metadata), desc="Processing rows"):
+                    launch_data = search_copernicus(launch_data, launch_data_dict, bbox, "tar", 10, site, self.platform)
 
-                    launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
-                    time_start =  (launch_time + timedelta(hours=0)).strftime("%Y-%m-%dT%H:%M:%SZ")
-                    time_end   =  (launch_time + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-                    # Set up the dictionary to contain all the information about the overpasses found.
-                    launch_data_dict = {"launch_time": launch_time,
-                                        "launch_rocket": rocket,
-                                        "launch_prop": prop
-                                        }
-
-                    # TODO: Eventually we want to be able to handle multiple data sources here, and keep the top script constant.
-                    launch_data = search_copernicus(launch_data, launch_data_dict, time_start, time_end, bbox, "tar", 10, site)
+                ###############################################
+                # Write to matches file and download the data.
+                ###############################################
 
                 if len(launch_data) > 0:
 
-                    # Write matched launches into coincidence dict using original indices
-                    for entry in launch_data:
-                        site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
-                        site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
-                        site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
-                    
-                    self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "tar")
+                    if self.platform == "ls":       
+                        pass
+                    elif self.platform == "sn":
+                        self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "tar")
+
+            # Write matched launches into coincidence dict using original indices
+            for entry in launch_data:
+                site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
+                site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
+                site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
 
         # Remove sites where no coincidences were found.
         site_data_coincidence = {site: data
@@ -171,7 +206,7 @@ class find_data:
 
         # Build an array of dimensions (time, lat, lon, variable).
         self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
-        data_out = np.full((len(data), self.height, self.width, 11), np.nan, dtype=np.float32)
+        data_out = np.full((len(data), self.height, self.width, 17), np.nan, dtype=np.float32)
         
         # Loop over resolutions and images.
         for ind, image in enumerate(data):
@@ -195,12 +230,12 @@ class find_data:
         
         # Set up strings for saving to netCDF
         if scene == "tar":
-            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}.nc'
+            filename = f"sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}.nc"
         else:
-            filename = f'sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}-{self.year}.nc'
+            filename = f"sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}-{self.year}.nc"
         
-        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B08","scl"]
-        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN","unitless"]
+        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "scl"]
+        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN","unitless"]
         long_names  = ['Sentinel-2-l1c solar azimuth angle', 
                        'Sentinel-2-l1c solar zenith angle',
                        'Sentinel-2-l1c viewing azimuth angle', 
@@ -210,7 +245,13 @@ class find_data:
                        'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B05 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B06 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B07 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B09 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B11 TOA reflectance in DN (DN=1e4*reflectance)',
+                       'Sentinel-2-l1c B12 TOA reflectance in DN (DN=1e4*reflectance)',
                        'Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)']
 
 

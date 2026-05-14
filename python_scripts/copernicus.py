@@ -31,11 +31,11 @@ def get_scl(bbox, config, time_start, time_end):
         ],
         responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
     )
-    l2data = request_scl_data.get_data()[0]
+    scldata = request_scl_data.get_data()[0]
 
-    return l2data
+    return scldata
 
-def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, scene, cloud_cover, site):
+def search_copernicus(data_dict_list, data_dict, bbox, scene, cloud_cover, site):
     """ Searches the Copernicus Sentinel-2 catalog for overpasses matching the time window and location of interest, and filters them by cloud cover.
         Returns a list of dictionaries containing information about the overpasses that match the criteria.
         Ran for both target and reference scenes."""
@@ -51,6 +51,11 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
         print("Warning! To use Process API, please provide the credentials (OAuth client ID and client secret).")
     
     # First search over the time window. Set a coarse cloud cover filter to speed things up.
+        
+    launch_time = data_dict["launch_time"]
+    time_start =  (launch_time + timedelta(hours=0)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    time_end   =  (launch_time + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
     search_iterator = catalog.search(DataCollection.SENTINEL2_L1C, bbox=bbox, time = (time_start, time_end), filter="eo:cloud_cover<30")
     results = list(search_iterator)
     if not results:
@@ -68,7 +73,7 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
 
         # Get time and round to nearest minute
         dt = datetime.fromisoformat(result["properties"]["datetime"].replace("Z", "+00:00"))
-        dt_min = dt.replace(second=0, microsecond=0)
+        dt_min = (dt + timedelta(seconds=30)).replace(second=0, microsecond=0)
 
         # Add to dict only if it's the earliest for that platform and minute.
         key = (result["properties"]["platform"], dt_min)
@@ -95,12 +100,12 @@ def search_copernicus(data_dict_list, data_dict, time_start, time_end, bbox, sce
         # This is searching the level 2 (processed) data, which has the scene classification layer needed for cloud filtering.
         # Request at 20m resolution to check cloud cover.
 
-        l2data = get_scl(bbox, config, op_time_start, op_time_end)
-        if l2data.size == 0:
+        scldata = get_scl(bbox, config, op_time_start, op_time_end)
+        if scldata.size == 0:
             raise ImportError("No data found.")
         
         # Calculate cloud cover from scene classification data.
-        scl = l2data[:, :]
+        scl = scldata[:, :]
         cld_mask = np.isin(scl, [3, 8, 9, 10])
         cloud_prop = cld_mask.mean() * 100
         if cloud_prop > cloud_cover:
@@ -162,11 +167,11 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
         raise ImportError("No data found.")
 
     # Get the scl data 
-    l2data = get_scl(bbox, config, time_start, time_end)
-    if l2data.size == 0:
+    scldata = get_scl(bbox, config, time_start, time_end)
+    if scldata.size == 0:
         raise ImportError("No data found.")
-    data_out[ind,:,:,-1] = l2data
-    cld_mask = np.isin(l2data, [3, 8, 9, 10])
+    data_out[ind,:,:,-1] = scldata
+    cld_mask = np.isin(scldata, [3, 8, 9, 10])
     
     # Save an image of the launch site overpass for a visual check.
     print("Printing image.")
@@ -189,10 +194,11 @@ def download_copernicus(data_out, res, launch_time, time_start, time_end, ind, l
     # Plot overlay
     ax.imshow(overlay, extent=extent)
 
-    if not os.path.exists(f"site_images/{site.replace('/', '')}"):
-        os.makedirs(f"site_images/{site.replace('/', '')}")
+    path = f"site_images/{site.replace('/', '')}/{scene}"
+    if not os.path.exists(path):
+        os.makedirs(path)
 
-    plt.savefig(f'site_images/{site.replace('/', '')}/{launch_time.strftime("%Y-%m-%d")}_{res}_{scene}.png')
+    plt.savefig(f"{path}/{launch_time.strftime("%Y-%m-%d")}_{res}.png")
     plt.close()
 
     return data_out

@@ -1,0 +1,75 @@
+{
+    "CC_LC40": {
+        "name": "Space Launch Complex 40, Cape Canaveral",
+        "lat": "28.5620",
+        "lon": "-80.5772",
+        "launch_times": [
+            "2023-01-03T14:55:56"
+        ],
+        "launch_rockets": [
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0"
+        ]
+    },
+    "GIK-5_LC31": {
+        "name": "Ploshchadka 31 PU 17P32-6, GIK-5, Baykonur, Kazakstan",
+        "lat": "45.9960",
+        "lon": "63.5641",
+        "launch_times": [
+            "2025-04-08T05:47:15"
+        ],
+        "launch_rockets": [
+            "Soyuz-2-1A"
+        ],
+        "launch_prop_mass_kg": [
+            "162340.0"
+        ]
+    },
+    "JQ_LC603": {
+        "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
+        "lat": "40.9605",
+        "lon": "100.2980",
+        "launch_times": [
+            "2013-10-25T03:50:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 4B"
+        ],
+        "launch_prop_mass_kg": [
+            "183200.0"
+        ]
+    },
+    "VS_SLC4E": {
+        "name": "Space Launch Complex 4-East, Vandenberg AFB",
+        "lat": "34.6320",
+        "lon": "-120.6106",
+        "launch_times": [
+            "2017-01-14T17:54:39",
+            "2018-12-03T18:34:05"
+        ],
+        "launch_rockets": [
+            "Falcon 9",
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0"
+        ]
+    },
+    "XSC_LC2": {
+        "name": "Launch Complex 2, Xichang Space Center",
+        "lat": "28.2455",
+        "lon": "102.0271",
+        "launch_times": [
+            "2023-05-17T02:49:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 3B"
+        ],
+        "launch_prop_mass_kg": [
+            "327900.0"
+        ]
+    }
+}
