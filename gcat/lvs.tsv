@@ -1,5 +1,5 @@
 #LV_Name	LV_Variant	Stage_No	Stage_Name	Qualifier	Dummy	Multiplicity	Stage_Impulse	Stage_Apogee	Stage_Perigee	Perigee_Qual
-# Updated 2026 Apr 17 0432:17
+# Updated 2026 Apr 24 1739:51
 ?	-	 1	?	?	-	 1	-	     0	-6378	-
 Unknown	-	 1	?	?	-	 1	-	     0	-6378	-
 N-1 11A52	-	 1	N-1 Blok-A	-	-	 1	4980000.0 	    50	-6300	?
@@ -1214,6 +1214,11 @@ Soyuz-2-1A	Volga	 2	14S53A	-	-	 1	-	   120	-5700	?
 Soyuz-2-1A	Volga	 3	14S54/RD-0110	-	-	 1	-	   200	  200	-
 Soyuz-2-1A	Volga	 4	Volga	-	-	 1	-	   200	  200	-
 Soyuz-2-1A	Volga	 F	GO	-	-	 2	-	   120	-5700	?
+Soyuz-2-1B	Volga	 1	14S53	-	-	 4	-	    75	-5900	?
+Soyuz-2-1B	Volga	 2	14S53A	-	-	 1	-	   120	-5700	?
+Soyuz-2-1B	Volga	 3	14S54	-	-	 1	-	   200	  200	-
+Soyuz-2-1B	Volga	 4	Volga	-	-	 1	-	   200	  200	-
+Soyuz-2-1B	Volga	 F	GO	-	-	 2	-	   120	-5700	?
 Soyuz-2-1B	Fregat	 1	14S53	-	-	 4	-	    75	-5900	?
 Soyuz-2-1B	Fregat	 2	14S53A	-	-	 1	-	   120	-5700	?
 Soyuz-2-1B	Fregat	 3	14S54	-	-	 1	-	   200	  200	-

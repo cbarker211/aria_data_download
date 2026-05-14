@@ -95,7 +95,7 @@ class import_launches:
         # Create a site lookup
         site_lookup = {}
         for _, row in df_points.iterrows():
-            site_pad = f'{row["#Site"]}_{row["Code"].replace("?","")}'  
+            site_pad = f'{row["#Site"]}_{row["Code"].replace("?","").replace("/","")}'  
             lat = row["Latitude"].strip()
             lon = row["Longitude"].strip()
             name = row["Name"].strip()
@@ -142,7 +142,7 @@ class import_launches:
         launch_sites = {}
         for (site_code, pad_code), group in df.groupby(["Launch_Site", "Launch_Pad"]):
             
-            site_pad = f"{site_code}_{pad_code}"
+            site_pad = f"{site_code}_{pad_code}".replace("/","")
             if site_pad not in site_lookup:
                 continue
 

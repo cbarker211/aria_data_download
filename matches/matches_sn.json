@@ -39,12 +39,11 @@
             "0"
         ]
     },
-    "JQ_LC43/94": {
+    "JQ_LC4394": {
         "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
         "lat": "40.9605",
         "lon": "100.2980",
         "launch_times": [
-            "2021-07-29T04:01:00",
             "2021-07-29T04:01:00",
             "2023-02-24T04:01:00",
             "2023-11-16T03:55:00",
@@ -52,13 +51,11 @@
         ],
         "launch_rockets": [
             "Chang Zheng 2D",
-            "Chang Zheng 2D",
             "Chang Zheng 2C",
             "Chang Zheng 2C/YZ-1S",
             "Chang Zheng 2D"
         ],
         "launch_prop_mass_kg": [
-            "183200.0",
             "183200.0",
             "143000.0",
             "172000.0",
