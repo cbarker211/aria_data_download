@@ -16,13 +16,9 @@
 import json
 import requests
 import sys
-import time
-import argparse
 import threading
 import re
-from tqdm import tqdm
 from datetime import datetime, timedelta, timezone
-import pandas as pd
 import numpy as np
 import rioxarray
 from io import BytesIO

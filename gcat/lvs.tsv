@@ -1,5 +1,5 @@
 #LV_Name	LV_Variant	Stage_No	Stage_Name	Qualifier	Dummy	Multiplicity	Stage_Impulse	Stage_Apogee	Stage_Perigee	Perigee_Qual
-# Updated 2026 Apr 24 1739:51
+# Updated 2026 Jun 18 0942:25
 ?	-	 1	?	?	-	 1	-	     0	-6378	-
 Unknown	-	 1	?	?	-	 1	-	     0	-6378	-
 N-1 11A52	-	 1	N-1 Blok-A	-	-	 1	4980000.0 	    50	-6300	?
@@ -229,6 +229,10 @@ Ariane 64	-	 0	Ariane 6 ESR	-	-	 4	-	   100	-6000	-
 Ariane 64	-	 1	Ariane 6 LLPM	-	-	 1	-	   250	-5000	-
 Ariane 64	-	 2	Ariane 6 ULPM	-	-	 1	-	   200	35000	-
 Ariane 64	-	 F	Ariane 6 Fairing	-	-	 2	-	   250	-5000	-
+Ariane 64	1	 0	Ariane 6 ESR P160C	-	-	 4	-	   100	-6000	-
+Ariane 64	1	 1	Ariane 6 LLPM	-	-	 1	-	   250	-5000	-
+Ariane 64	1	 2	Ariane 6 ULPM	-	-	 1	-	   200	35000	-
+Ariane 64	1	 F	Ariane 6 Fairing	-	-	 2	-	   250	-5000	-
 H3-30S	-	 1	H3 Stage 1 3E	-	-	 1	-	   100	-6000	-
 H3-30S	-	 2	H3 Stage 2	-	-	 1	-	   300	  200	-
 H3-22S	-	 0	H3 SRB-3	-	-	 2	-	    50	-6000	-
@@ -307,6 +311,8 @@ DC-XA	-	 1	DC-XA	-	-	 1	-	     2	-6378	-
 DC-X	-	 1	DC-X	-	-	 1	-	     2	-6378	-
 Zhuque-3	-	 1	ZQ-3 Stage 1	-	-	 1	-	   100	-6300	-
 Zhuque-3	-	 2	ZQ-3 Stage 2	-	-	 1	-	   500	  500	-
+Chang Zheng 12B	-	 1	CZ-12B Stage 1	-	-	 1	-	     0	    0	-
+Chang Zheng 12B	-	 2	CZ-12B Stage 2	-	-	 1	-	     0	    0	-
 Soyuz-5	-	 1	Soyuz-5 Stage 1	-	-	 1	-	   100	-6300	-
 Soyuz-5	-	 2	Soyuz-5 Stage 2	-	-	 1	-	   500	  500	-
 H-II	-	 0	H-II SRB	-	-	 2	 291400.0 	    60	-6260	?
@@ -637,6 +643,8 @@ Zhuque-2E	-	 1	ZQ-2E Stage 1	-	-	 1	-	   100	-6300	-
 Zhuque-2E	-	 2	ZQ-2E Stage 2	-	-	 1	-	   500	  500	-
 Zhuque-2E	1	 1	ZQ-2E-1 Stage 1	-	-	 1	-	   100	-6300	-
 Zhuque-2E	1	 2	ZQ-2E Stage 2	-	-	 1	-	   500	  500	-
+Zhuque-2E	2	 1	ZQ-2E-2 Stage 1	-	-	 1	-	   100	-6300	-
+Zhuque-2E	2	 2	ZQ-2E-2 Stage 2	-	-	 1	-	   500	  500	-
 Dong Feng 5	-	 1	DF-5 Stage 1	-	-	 1	-	   100	-5500	?
 Dong Feng 5	-	 2	DF-5 Stage 2	-	-	 1	-	  1000	-4000	?
 Dong Feng 5A	-	 1	DF-5 Stage 1	-	-	 1	-	   100	-5500	?

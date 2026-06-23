@@ -1,0 +1,407 @@
+{
+    "CC_LC40": {
+        "name": "Space Launch Complex 40, Cape Canaveral",
+        "lat": "28.5620",
+        "lon": "-80.5772",
+        "launch_times": [
+            "2021-01-24T15:00:00",
+            "2022-02-21T14:44:20",
+            "2022-02-21T14:44:20",
+            "2023-01-03T14:55:56",
+            "2025-02-21T15:19:00",
+            "2025-06-13T15:29:00"
+        ],
+        "launch_rockets": [
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0",
+            "372000.0",
+            "372000.0",
+            "372000.0",
+            "372000.0"
+        ]
+    },
+    "GIK-1_LC434": {
+        "name": "Ploshchadka 43/4 'Sankt-Peterburg', GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9300",
+        "lon": "40.4700",
+        "launch_times": [
+            "2020-05-22T07:31:17",
+            "2025-05-23T08:36:00",
+            "2025-05-23T08:36:00"
+        ],
+        "launch_rockets": [
+            "Soyuz-2-1B",
+            "Soyuz-2-1B",
+            "Soyuz-2-1B"
+        ],
+        "launch_prop_mass_kg": [
+            "162340.0",
+            "162340.0",
+            "162340.0"
+        ]
+    },
+    "GIK-5_LC31": {
+        "name": "Ploshchadka 31 PU 17P32-6, GIK-5, Baykonur, Kazakstan",
+        "lat": "45.9960",
+        "lon": "63.5641",
+        "launch_times": [
+            "2022-08-09T05:52:38",
+            "2023-02-09T06:15:36"
+        ],
+        "launch_rockets": [
+            "Soyuz-2-1B",
+            "Soyuz-2-1A"
+        ],
+        "launch_prop_mass_kg": [
+            "162340.0",
+            "162340.0"
+        ]
+    },
+    "JQ_LC130": {
+        "name": "Pad 130 (ZK-1A) Jiuquan Space Center",
+        "lat": "40.8184",
+        "lon": "100.2242",
+        "launch_times": [
+            "2024-01-23T04:03:00",
+            "2024-11-11T04:03:00",
+            "2025-12-10T04:03:45",
+            "2026-04-14T04:03:00",
+            "2026-05-15T04:33:00",
+            "2026-06-15T03:44:00",
+            "2026-06-15T03:44:00"
+        ],
+        "launch_rockets": [
+            "Lijian-1",
+            "Lijian-1",
+            "Lijian-1",
+            "Lijian-1",
+            "Lijian-1",
+            "Lijian-1",
+            "Lijian-1"
+        ],
+        "launch_prop_mass_kg": [
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    },
+    "JQ_LC4391": {
+        "name": "Pad 921, South Launch Site-1, Jiuquan Space Center",
+        "lat": "40.9580",
+        "lon": "100.2912",
+        "launch_times": [
+            "2023-10-26T03:14:02",
+            "2025-11-25T04:11:45",
+            "2026-02-07T03:58:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 2F",
+            "Chang Zheng 2F",
+            "Chang Zheng 2F"
+        ],
+        "launch_prop_mass_kg": [
+            "325000.0",
+            "325000.0",
+            "325000.0"
+        ]
+    },
+    "JQ_LC4394": {
+        "name": "Pad 603, South Launch Site-2, Jiuquan Space Center",
+        "lat": "40.9605",
+        "lon": "100.2980",
+        "launch_times": [
+            "2023-11-16T03:55:00",
+            "2023-12-04T04:10:00",
+            "2024-11-09T03:39:00",
+            "2024-11-09T03:39:00",
+            "2025-01-17T04:07:00",
+            "2025-03-15T04:11:00",
+            "2025-04-01T04:00:00",
+            "2025-05-14T04:12:00",
+            "2025-05-14T04:12:00",
+            "2025-11-19T04:01:00",
+            "2025-11-19T04:01:00",
+            "2025-12-09T03:41:00",
+            "2025-12-30T04:12:00",
+            "2025-12-30T04:12:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 2C/YZ-1S",
+            "Chang Zheng 2C",
+            "Chang Zheng 2C",
+            "Chang Zheng 2C",
+            "Chang Zheng 2D",
+            "Chang Zheng 2D",
+            "Chang Zheng 2D",
+            "Chang Zheng 2D",
+            "Chang Zheng 2D",
+            "Chang Zheng 2C",
+            "Chang Zheng 2C",
+            "Chang Zheng 4B",
+            "Chang Zheng 4B",
+            "Chang Zheng 4B"
+        ],
+        "launch_prop_mass_kg": [
+            "172000.0",
+            "143000.0",
+            "143000.0",
+            "143000.0",
+            "183200.0",
+            "183200.0",
+            "183200.0",
+            "183200.0",
+            "183200.0",
+            "143000.0",
+            "143000.0",
+            "183200.0",
+            "183200.0",
+            "183200.0"
+        ]
+    },
+    "JQ_LC4395": {
+        "name": "KZ-1 pad, South Launch Site-East, Jiuquan Space Center",
+        "lat": "40.9691",
+        "lon": "100.3435",
+        "launch_times": [
+            "2022-03-30T02:29:00",
+            "2024-05-21T04:15:00",
+            "2026-03-16T04:12:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 11",
+            "Kuaizhou-11",
+            "Kuaizhou-11"
+        ],
+        "launch_prop_mass_kg": [
+            "35000.0",
+            "0",
+            "0"
+        ]
+    },
+    "JQ_LC4395A": {
+        "name": "KZ-1 pad, South Launch Site-East, Jiuquan Space Center",
+        "lat": "40.9691",
+        "lon": "100.3435",
+        "launch_times": [
+            "2022-09-06T02:24:00",
+            "2023-06-09T02:35:30",
+            "2024-01-11T03:52:00",
+            "2025-07-29T04:11:00"
+        ],
+        "launch_rockets": [
+            "Kuaizhou-1A",
+            "Kuaizhou-1A",
+            "Kuaizhou-1A",
+            "Shuang Quxian 1"
+        ],
+        "launch_prop_mass_kg": [
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    },
+    "JQ_LC4396A": {
+        "name": "Area 43/96A, Jiuquan Space Center",
+        "lat": "40.9149",
+        "lon": "100.2456",
+        "launch_times": [
+            "2025-05-17T04:12:00",
+            "2025-05-17T04:12:00"
+        ],
+        "launch_rockets": [
+            "Zhuque-2E",
+            "Zhuque-2E"
+        ],
+        "launch_prop_mass_kg": [
+            "135000.0",
+            "135000.0"
+        ]
+    },
+    "JQ_LC4396B": {
+        "name": "Area 43/96B, Jiuquan Space Center",
+        "lat": "40.9203",
+        "lon": "100.2513",
+        "launch_times": [
+            "2025-12-03T04:00:00"
+        ],
+        "launch_rockets": [
+            "Zhuque-3"
+        ],
+        "launch_prop_mass_kg": [
+            "381000.0"
+        ]
+    },
+    "KSC_LC39A": {
+        "name": "Launch Complex 39A, NASA Kennedy Space Center, Florida",
+        "lat": "28.6083",
+        "lon": "-80.6041",
+        "launch_times": [
+            "2024-10-14T16:06:00",
+            "2024-10-14T16:06:00",
+            "2024-10-14T16:06:00",
+            "2024-12-05T16:10:00",
+            "2025-08-01T15:43:42",
+            "2025-08-01T15:43:42"
+        ],
+        "launch_rockets": [
+            "Falcon Heavy",
+            "Falcon Heavy",
+            "Falcon Heavy",
+            "Falcon 9",
+            "Falcon 9",
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "852822.0",
+            "852822.0",
+            "852822.0",
+            "372000.0",
+            "372000.0",
+            "372000.0"
+        ]
+    },
+    "SHAR_FLP": {
+        "name": "PSLV pad, Sriharikota Range",
+        "lat": "13.7333",
+        "lon": "80.2348",
+        "launch_times": [
+            "2021-02-28T04:54:00",
+            "2023-02-10T03:48:00",
+            "2023-02-10T03:48:00",
+            "2023-02-10T03:48:00",
+            "2024-01-01T03:40:00",
+            "2024-08-16T03:47:00",
+            "2024-08-16T03:47:00"
+        ],
+        "launch_rockets": [
+            "PSLV-DL",
+            "SSLV",
+            "SSLV",
+            "SSLV",
+            "PSLV-DL",
+            "SSLV",
+            "SSLV"
+        ],
+        "launch_prop_mass_kg": [
+            "170000.0",
+            "81000.0",
+            "81000.0",
+            "81000.0",
+            "170000.0",
+            "81000.0",
+            "81000.0"
+        ]
+    },
+    "TYSC_LC16": {
+        "name": "Pad 16, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8681",
+        "lon": "111.5802",
+        "launch_times": [
+            "2020-11-06T03:19:15",
+            "2021-11-05T02:19:00",
+            "2025-04-03T02:12:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 6",
+            "Chang Zheng 6",
+            "Chang Zheng 6"
+        ],
+        "launch_prop_mass_kg": [
+            "79900.0",
+            "79900.0",
+            "79900.0"
+        ]
+    },
+    "TYSC_LC9": {
+        "name": "Pad 9, Taiyuan Space Center, Wuzhai, Shanxi, China",
+        "lat": "38.8632",
+        "lon": "111.5895",
+        "launch_times": [
+            "2021-11-20T01:51:00",
+            "2022-01-17T02:35:00",
+            "2025-12-16T03:17:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 4B",
+            "Chang Zheng 2D",
+            "Chang Zheng 4B"
+        ],
+        "launch_prop_mass_kg": [
+            "183200.0",
+            "183200.0",
+            "183200.0"
+        ]
+    },
+    "VS_SLC4E": {
+        "name": "Space Launch Complex 4-East, Vandenberg AFB",
+        "lat": "34.6320",
+        "lon": "-120.6106",
+        "launch_times": [
+            "2020-11-21T17:17:08"
+        ],
+        "launch_rockets": [
+            "Falcon 9"
+        ],
+        "launch_prop_mass_kg": [
+            "372000.0"
+        ]
+    },
+    "WEN_LC201": {
+        "name": "CZ-7 pad, Wenchang Space Center, Hainan",
+        "lat": "19.6185",
+        "lon": "110.9555",
+        "launch_times": [
+            "2022-11-12T02:03:12"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 7"
+        ],
+        "launch_prop_mass_kg": [
+            "476000.0"
+        ]
+    },
+    "XSC_LC3": {
+        "name": "Launch Complex 3, Xichang Space Center",
+        "lat": "28.2472",
+        "lon": "102.0291",
+        "launch_times": [
+            "2021-11-06T03:00:00"
+        ],
+        "launch_rockets": [
+            "Chang Zheng 2D"
+        ],
+        "launch_prop_mass_kg": [
+            "183200.0"
+        ]
+    },
+    "MAHIA_LC1A": {
+        "name": "Rocket Lab Launch Complex 1A, Mahia Peninsula",
+        "lat": "-39.2616",
+        "lon": "177.8652",
+        "launch_times": [
+            "2025-02-08T20:43:00",
+            "2025-02-08T20:43:00"
+        ],
+        "launch_rockets": [
+            "Electron",
+            "Electron"
+        ],
+        "launch_prop_mass_kg": [
+            "9250.0",
+            "9250.0"
+        ]
+    }
+}

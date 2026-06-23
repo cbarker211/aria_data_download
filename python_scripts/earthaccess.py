@@ -1,7 +1,6 @@
 # Earth Access for NASA Earth Data
 import earthaccess
-from datetime import datetime, timedelta, timezone
-from usgs import api
+from datetime import datetime
 import pandas as pd
 
 # Log into earthaccess

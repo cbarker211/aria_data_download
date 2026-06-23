@@ -6,41 +6,15 @@ import xarray as xr
 from tqdm import tqdm
 from python_scripts.utils import build_grid
 from python_scripts.copernicus import search_copernicus, download_copernicus
-from python_scripts.m2m import search_landsat, sendRequest
-from python_scripts.gee import search_gee
+from python_scripts.gee import search_gee, download_gee
+from python_scripts.planet import search_planet
 import argparse
-import copy
 import os
 import sys
 import ee
-
-# Units:
-# DN = 10000 * REFLECTANCE
-# AOT = DN / 1000
-
-# Maybe also download band B04 (665 nm) where NO2 absorption small
-# (About 30-times less than at B01 and B02)
-
-# Table showing data available: https://docs.sentinel-hub.com/api/latest/data/sentinel-2-l1c/
-# https://sentiwiki.copernicus.eu/web/s2-products
-
-# Scene classification data:
-# 0=no data
-# 1=saturated/defective pixel
-# 2=topographic shadows
-# 3=cloud shadow
-# 4=vegetation
-# 5=not vegetated
-# 6=water
-# 7=unclassified
-# 8=cloud with medium probability
-# 9=cloud with high prob
-# 10=thin cirrus
-# 11=snow/ice
-
-# Data mask:
-# 0=nodata
-# 1=has data
+from sentinelhub.geometry import BBox
+from sentinelhub.constants import CRS
+from planet import Planet, data_filter
 
 # Currently this searches for the launch overpass, and then searches for references before and after with minimal cloud cover.
 # But we need all instances of cloud-free overpasses with the launchpad so we can gather multiple potential reference scenes.
@@ -79,9 +53,13 @@ class find_data:
             ls8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
             ls9 = ee.ImageCollection('LANDSAT/LC09/C02/T1_TOA')
             self.landsat = ls8.merge(ls9)
+            self.target_res = 30
+        elif self.platform in ["tn","sd"]:
+            self.pl = Planet()
 
     def target_main(self, site):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
+        self.scene = "tar"
 
         # Open the sites file.
         site_data = json.load(open("sites.json"))
@@ -92,10 +70,8 @@ class find_data:
         else:
             site_data_coincidence = {}
 
-        if site == "all":
-            sites_to_process = site_data.keys()
-        else:
-            sites_to_process = [site]
+        # Either loop over all sites or just the specified site.
+        sites_to_process = site_data.keys() if site == "all" else [site]
 
         for site in sites_to_process:
             # Get the full spaceport name and list of launch times.
@@ -103,6 +79,7 @@ class find_data:
             launch_metadata = list(zip(site_data[site]['launch_times'], site_data[site]['launch_rockets'], site_data[site]['launch_prop_mass_kg']))
             print(f"Searching at {loc_name}.")
 
+            # Clear the list of matches for this site.
             site_data_coincidence[site] = {'name': loc_name,
                                            'lat': site_data[site]["lat"],
                                            'lon': site_data[site]["lon"],
@@ -113,12 +90,24 @@ class find_data:
             # Set up grid box around site:
             launch_lat = float(site_data[site]['lat'])
             launch_lon = float(site_data[site]['lon'])
-            bbox, lat_range, lon_range, bbox_gee = build_grid(launch_lat, launch_lon)
-            region = ee.Geometry.Rectangle(bbox_gee)
+            bbox, lat_range, lon_range = build_grid(launch_lat, launch_lon, "ls", 0.06, 0.08) # bbox is an array
 
-            # Check for which times have an overpass within 1 hour with low cloud cover.
+            if self.platform == "sn":
+                coords_wgs84 = tuple(bbox)
+                bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
+            elif self.platform in ["tn","sd"]:
+                lon_min, lat_min, lon_max, lat_max = bbox
+                geom = {"type": "Polygon",
+                        "coordinates": [[
+                        [lon_min, lat_min],
+                        [lon_max, lat_min],
+                        [lon_max, lat_max],
+                        [lon_min, lat_max],
+                        [lon_min, lat_min]]]}
+
+            # Check which times have an overpass within 1 hour with low cloud cover.
             launch_data = []
-
+            proj_list = []
             for i, (time, rocket, prop) in tqdm(enumerate(launch_metadata), total = len(launch_metadata), desc="Processing rows"):
 
                 launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
@@ -133,24 +122,32 @@ class find_data:
                 # Search for matches.
                 ######################
                 if self.platform == "ls":
-                    #launch_data = search_landsat(launch_data, launch_data_dict, launch_lat, launch_lon, "tar", 10, site, self.apiKey)
-                    #launch_data = search_copernicus(launch_data, launch_data_dict, bbox, "tar", 10, site, self.platform)
-                    launch_data  = search_gee(launch_data, launch_data_dict, self.landsat, region, "tar", 10, site)
-
+                    launch_data, height, width, crs = search_gee(launch_data, launch_data_dict, self.landsat, bbox, self.scene, 80, site)
+                    if height != 0 and width != 0:
+                        self.height = height
+                        self.width = width
                 elif self.platform == "sn":
+                    launch_data, crs = search_copernicus(launch_data, launch_data_dict, bbox, self.scene, 80, site)
+                elif self.platform in ["tn","sd"]:
+                    crs = None
+                    launch_data = search_planet(launch_data, launch_data_dict, self.pl, geom, self.scene, 30, site, self.platform)
                 
-                    launch_data = search_copernicus(launch_data, launch_data_dict, bbox, "tar", 10, site, self.platform)
+                if crs is not None:
+                    proj_list.append(crs)
 
-                ###############################################
-                # Write to matches file and download the data.
-                ###############################################
+            if len(proj_list) > 0:
+                if all(d["crs"] == proj_list[0]["crs"] for d in proj_list):
+                    self.proj = proj_list[0]
+                else:
+                    print("Warning: Different projections found for this site.")
+            
+            ###############################################
+            # Write to matches file and download the data.
+            ###############################################
 
-                if len(launch_data) > 0:
+            if len(launch_data) > 0 and self.platform not in ["tn","sd"]:
 
-                    if self.platform == "ls":       
-                        pass
-                    elif self.platform == "sn":
-                        self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range, "tar")
+                self.download(bbox, 0, 1, launch_data, site, loc_name, lat_range, lon_range)
 
             # Write matched launches into coincidence dict using original indices
             for entry in launch_data:
@@ -168,13 +165,13 @@ class find_data:
 
     def ref_main(self, site):
         """This function downloads the Sentinel-2 data for a launch site over a specified year."""
-
+        self.scene = "ref"
         # Open the sites file.
         site_meta = json.load(open("sites.json"))
         site_data = json.load(open(f"matches/matches_{self.platform}.json"))
 
         if site == "all":
-            sites_to_process = site_data.keys()
+            sites_to_process = list(site_data.keys())
         else:
             sites_to_process = [site]
 
@@ -182,79 +179,131 @@ class find_data:
 
             launch_years = [int(date[:4]) for date in site_data[site]['launch_times']]
             unique_launch_years = sorted(list(set(launch_years)))
-
+            if self.platform == "ls":
+                ds = xr.open_dataset(f"/home/ucfacb0/ARIA/aria_data_download/download/{site}/landsat-8-9-c2-t1-toa-{site}-30-tar.nc")
+                self.proj = {"crs": ds.attrs["crs"],
+                             "transform": ds.attrs["transform"]}
+            elif self.platform == "sn":
+                ds = xr.open_dataset(f"/home/ucfacb0/ARIA/aria_data_download/download/{site}/sentinel-2-l1c-band-l2a-slc-{site}-60-tar.nc")
+                self.proj = {"crs": ds.attrs["crs"]}
+            
             for year in unique_launch_years:
                 self.year = year
+                time_start = datetime(self.year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+                time_end   = datetime(self.year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
 
                 # Get the full spaceport name and list of launch times.
                 loc_name = site_meta[site]['name']
                 print(f"Searching at {loc_name}.")
 
                 # Set up grid box around site:
-                bbox, lat_range, lon_range, _ = build_grid(site_meta[site]['lat'], site_meta[site]['lon'])  
-                time_start = datetime(self.year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-                time_end   = datetime(self.year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
-                ref_data = search_copernicus([], {}, time_start, time_end, bbox, "ref", 5, site)
+                launch_lat = float(site_data[site]['lat'])
+                launch_lon = float(site_data[site]['lon'])
+                bbox, lat_range, lon_range = build_grid(launch_lat, launch_lon, "ls", 0.06, 0.08) # bbox is an array
+                ref_data_dict = {"time_start": time_start, "time_end": time_end}
 
-                if len(ref_data) == 0:
-                    raise ValueError("No overpasses found.")
-                self.download(bbox, -1, 1, ref_data, site, loc_name, lat_range, lon_range, "ref")
+                if self.platform == "ls":
+                    ref_data, height, width, _ = search_gee([], ref_data_dict, self.landsat, bbox, self.scene, 5, site)
+                     
+                    if height != 0 and width != 0:
+                        self.height = height
+                        self.width = width
+                    if len(ref_data) == 0:
+                        raise ValueError("No overpasses found.")
+                    self.download(bbox, -1, 1, ref_data, site, loc_name, lat_range, lon_range)
 
-    def download(self, bbox, deltat_minus, deltat_plus, data, site, loc_name, lat_range, lon_range, scene):
+                elif self.platform == "sn":
+                    # Set up grid box around site:
+                    coords_wgs84 = tuple(bbox)
+                    bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
+                    ref_data, _ = search_copernicus([], ref_data_dict, bbox, "ref", 5, site)
 
-        # Data is a list where each item is a cloud_free overpass.
+                    if len(ref_data) == 0:
+                        raise ValueError("No overpasses found.")
+                    self.download(bbox, -1, 1, ref_data, site, loc_name, lat_range, lon_range)
 
-        # Build an array of dimensions (time, lat, lon, variable).
-        self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
-        data_out = np.full((len(data), self.height, self.width, 17), np.nan, dtype=np.float32)
-        
-        # Loop over resolutions and images.
+    def download(self, bbox, deltat_minus, deltat_plus, data, site, loc_name, lat_range, lon_range):
+
+        # data is a list where each item is a cloud_free overpass.
+        # data_out is an array of dimensions (time, lat, lon, variable) where the variable axis contains the 16 bands and dataMask for Sentinel-2, and the QA_PIXEL for Landsat.
+
+        if self.platform == "sn":
+            # Build an array of dimensions (time, lat, lon, variable).
+            self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
+            #data_out = np.full((len(data), self.height, self.width, 17), np.nan, dtype=np.float32)
+            filename = f"sentinel-2-l1c-band-l2a-slc-{site.replace('/', '')}-{self.target_res}-{self.scene}"
+            bbox_utm = bbox.transform(CRS(self.proj["crs"]))
+            size = bbox_to_dimensions(bbox_utm, resolution=self.target_res)
+        elif self.platform == "ls":
+            #data_out = np.full((len(data), self.height, self.width, 16), np.nan, dtype=np.float32)
+            filename = f"landsat-8-9-c2-t1-toa-{site.replace('/', '')}-{self.target_res}-{self.scene}"
+
+        if self.scene == "tar":
+            filename = f"{filename}.nc"
+        else:
+            filename = f"{filename}-{self.year}.nc"
+
+        # Loop over scenes.
         for ind, image in enumerate(data):
-
-            if scene == "tar":
-                time = image["launch_time"]
+            if self.scene == "tar":
+                time  = image["launch_time"]
+                delta_t_secs = image["delta_t_secs"]
             else:
                 time = image["overpass_time"]
-            print(time)
+                delta_t_secs = "0"
             time_start = (time+timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
             time_end   = (time+timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
             if self.platform == "sn":
-                data_out = download_copernicus(data_out, self.target_res, time, time_start, time_end, ind, lon_range, lat_range, bbox, site, scene)
+                downloaded_data = download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm, size, site, self.scene)
+            elif self.platform == "ls":
+                downloaded_data = download_gee(self.landsat, time, time_start, time_end, bbox, site, self.scene, self.proj)
+            self.shape = np.shape(downloaded_data)
+            if ind == 0:
+                data_out = np.full((len(data), self.shape[0], self.shape[1], self.shape[2]), np.nan, dtype=np.float32)
+            data_out[ind, ...] = downloaded_data
             
         # Save data for this site
-        self.save_to_netcdf(site, self.target_res, data_out, data, lat_range, lon_range, loc_name, scene)
+        self.save_to_netcdf(site, data_out, data, lat_range, lon_range, loc_name, filename)
         print(f'{site}-{self.target_res} written to disk')
 
-    def save_to_netcdf(self, site, res, data_out, data, lat_range, lon_range, loc_name, scene):
-        
-        # Set up strings for saving to netCDF
-        if scene == "tar":
-            filename = f"sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}.nc"
-        else:
-            filename = f"sentinel2-l1c-band-l2a-slc-{site.replace('/', '')}-{res}-{scene}-{self.year}.nc"
-        
-        variables   = ["saa", "sza", "vaa", "vza", "dataMask", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "scl"]
-        units       = ["degrees", "degrees", "degrees", "degrees", "unitless", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN","unitless"]
-        long_names  = ['Sentinel-2-l1c solar azimuth angle', 
-                       'Sentinel-2-l1c solar zenith angle',
-                       'Sentinel-2-l1c viewing azimuth angle', 
-                       'Sentinel-2-l1c viewing zenith angle',
-                       'Sentinel-2-l1c data mask (0=nodata, 1=data)',
-                       'Sentinel-2-l1c B01 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B02 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B03 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B04 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B05 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B06 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B07 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B08 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B09 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B11 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Sentinel-2-l1c B12 TOA reflectance in DN (DN=1e4*reflectance)',
-                       'Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)']
+    def save_to_netcdf(self, site, data_out, data, lat_range, lon_range, loc_name, filename):
 
-
+        long_name_strings = ['solar azimuth angle',
+                             'solar zenith angle',
+                             'viewing azimuth angle',
+                             'viewing zenith angle',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance',
+                             'TOA reflectance']
+        
+        if self.platform == "sn":
+            variables  = ["saa", "sza", "vaa", "vza", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "scl", "dataMask"]
+            units      = ["degrees"] * 4  + ["DN"] * 11 + ["unitless"] * 2
+            prefix     = 'Sentinel-2-l1c '
+            long_names = [prefix + name for name in long_name_strings]
+            long_names.append('TOA reflectance')
+            long_names.append('Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)')
+            long_names.append(prefix + "data mask (0=nodata, 1=data)")
+            attrs = {"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}",
+                     "crs": self.proj["crs"]}
+        elif self.platform == "ls":
+            variables  = ["saa", "sza", "vaa", "vza", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B10", "B11", "QA_PIXEL"] 
+            units      = ["degrees"] * 4 + ["unitless"] * 9 + ["Kelvin"] * 2 + ["bitmask"] 
+            prefix     = 'Landsat 8/9 '
+            long_names = [prefix + name for name in long_name_strings]
+            long_names.append('QA_PIXEL bitmask (0 - Fill, 1 - Dilated Cloud, 2 - Cirrus, 3 - Cloud, 4 - Cloud Shadow, 5 - Snow, 6 - Clear, 7 - Water, 8-15 - Confidence)')
+            attrs = {"Data_Attribution": f"Landsat 8/9 data for Site: {loc_name}",
+                     "crs": self.proj["crs"],
+                     "transform": self.proj["transform"]}
+            
         # Create arrays for all overpasses.
         cloud_prop = np.array([l["cloud_prop"] for l in data], dtype=np.float32)
 
@@ -272,13 +321,13 @@ class find_data:
             )
 
         # For the target scene, we also need delta_t_secs.
-        if scene == "tar":
+        if self.scene == "tar":
             times_clean = [l["launch_time"].astimezone(timezone.utc).replace(tzinfo=None) for l in data]
             delta_t_secs = np.array([l["delta_t_secs"] for l in data], dtype=np.float32)
             data_vars["delta_t_secs"] = xr.Variable(
                 dims = ("time"),
                 data = delta_t_secs,
-                attrs= {"long_name": "Time difference between overpass and launch", "units": "seconds"}
+                attrs= {"long_name": "Time difference between overpass and launch"}
             )
         else: 
             times_clean = [l["overpass_time"].astimezone(timezone.utc).replace(tzinfo=None) for l in data]
@@ -295,15 +344,14 @@ class find_data:
             data_vars=data_vars,
             coords={
                 "time":      ("time",      times_np),
-                "x":         ("x",         np.arange(self.width, dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
-                "y":         ("y",         np.arange(self.height, dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
+                "x":         ("x",         np.arange(self.shape[1], dtype=np.int32), {"long_name": "pixel col index", "units": "1"}),
+                "y":         ("y",         np.arange(self.shape[0], dtype=np.int32), {"long_name": "pixel row index", "units": "1"}),
                 "lat_range": ("bbox_lat",  lat_range, {"long_name": "bbox latitude range [min, max]",
                                                         "units": "degrees_north"}),
                 "lon_range": ("bbox_lon",  lon_range, {"long_name": "bbox longitude range [min, max]",
                                                         "units": "degrees_east"}),
             },
-            attrs={"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}"}
-            )
+            attrs=attrs)
         
         if not os.path.exists(f"download/{site.replace('/', '')}"):
             os.makedirs(f"download/{site.replace('/', '')}")

@@ -7,15 +7,18 @@
             "2017-12-15T15:36:09",
             "2022-01-13T15:25:00",
             "2023-03-24T15:43:10",
-            "2025-02-21T15:19:00"
+            "2025-02-21T15:19:00",
+            "2025-06-13T15:29:00"
         ],
         "launch_rockets": [
+            "Falcon 9",
             "Falcon 9",
             "Falcon 9",
             "Falcon 9",
             "Falcon 9"
         ],
         "launch_prop_mass_kg": [
+            "372000.0",
             "372000.0",
             "372000.0",
             "372000.0",
@@ -46,19 +49,28 @@
         "launch_times": [
             "2021-07-29T04:01:00",
             "2023-02-24T04:01:00",
+            "2023-08-03T03:47:47",
             "2023-11-16T03:55:00",
-            "2025-05-14T04:12:00"
+            "2025-03-15T04:11:00",
+            "2025-05-14T04:12:00",
+            "2025-12-30T04:12:00"
         ],
         "launch_rockets": [
             "Chang Zheng 2D",
             "Chang Zheng 2C",
+            "Chang Zheng 4C",
             "Chang Zheng 2C/YZ-1S",
-            "Chang Zheng 2D"
+            "Chang Zheng 2D",
+            "Chang Zheng 2D",
+            "Chang Zheng 4B"
         ],
         "launch_prop_mass_kg": [
             "183200.0",
             "143000.0",
+            "183200.0",
             "172000.0",
+            "183200.0",
+            "183200.0",
             "183200.0"
         ]
     },
@@ -68,13 +80,19 @@
         "lon": "-80.6041",
         "launch_times": [
             "2022-04-08T15:17:11",
+            "2022-06-17T16:08:50",
+            "2022-10-05T16:00:57",
             "2024-10-14T16:06:00"
         ],
         "launch_rockets": [
             "Falcon 9",
+            "Falcon 9",
+            "Falcon 9",
             "Falcon Heavy"
         ],
         "launch_prop_mass_kg": [
+            "372000.0",
+            "372000.0",
             "372000.0",
             "852822.0"
         ]
@@ -99,13 +117,22 @@
         "lon": "111.5895",
         "launch_times": [
             "2019-12-20T03:22:29",
-            "2021-09-07T03:01:00"
+            "2020-09-27T03:23:04",
+            "2021-09-07T03:01:00",
+            "2021-12-26T03:11:31",
+            "2022-05-05T02:38:00"
         ],
         "launch_rockets": [
             "Chang Zheng 4B",
-            "Chang Zheng 4C"
+            "Chang Zheng 4B",
+            "Chang Zheng 4C",
+            "Chang Zheng 4C",
+            "Chang Zheng 2D"
         ],
         "launch_prop_mass_kg": [
+            "183200.0",
+            "183200.0",
+            "183200.0",
             "183200.0",
             "183200.0"
         ]
@@ -136,6 +163,48 @@
         ],
         "launch_prop_mass_kg": [
             "372000.0"
+        ]
+    },
+    "GIK-1_LC434": {
+        "name": "Ploshchadka 43/4 'Sankt-Peterburg', GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9300",
+        "lon": "40.4700",
+        "launch_times": [
+            "2025-05-23T08:36:00"
+        ],
+        "launch_rockets": [
+            "Soyuz-2-1B"
+        ],
+        "launch_prop_mass_kg": [
+            "162340.0"
+        ]
+    },
+    "GIK-1_LC351": {
+        "name": "Ploshchadka 35, GIK-1, Plesetsk, Rossiya",
+        "lat": "62.9200",
+        "lon": "40.5800",
+        "launch_times": [
+            "2026-04-23T08:29:00"
+        ],
+        "launch_rockets": [
+            "Angara-1.2"
+        ],
+        "launch_prop_mass_kg": [
+            "132600.0"
+        ]
+    },
+    "TNSC_Y": {
+        "name": "Yoshinobu Launch Complex, Osaki Site, Tanegashima Space Center",
+        "lat": "30.4008",
+        "lon": "130.9776",
+        "launch_times": [
+            "2023-01-26T01:50:21"
+        ],
+        "launch_rockets": [
+            "H-IIA 202"
+        ],
+        "launch_prop_mass_kg": [
+            "233000.0"
         ]
     }
 }
