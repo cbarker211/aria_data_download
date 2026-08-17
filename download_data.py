@@ -122,12 +122,12 @@ class find_data:
                 # Search for matches.
                 ######################
                 if self.platform == "ls":
-                    launch_data, height, width, crs = search_gee(launch_data, launch_data_dict, self.landsat, bbox, self.scene, 80, site)
+                    launch_data, height, width, crs = search_gee(launch_data, launch_data_dict, self.landsat, bbox, self.scene, 30, site)
                     if height != 0 and width != 0:
                         self.height = height
                         self.width = width
                 elif self.platform == "sn":
-                    launch_data, crs = search_copernicus(launch_data, launch_data_dict, bbox, self.scene, 80, site)
+                    launch_data, crs = search_copernicus(launch_data, launch_data_dict, bbox, self.scene, 30, site)
                 elif self.platform in ["tn","sd"]:
                     crs = None
                     launch_data = search_planet(launch_data, launch_data_dict, self.pl, geom, self.scene, 30, site, self.platform)
@@ -285,13 +285,13 @@ class find_data:
                              'TOA reflectance']
         
         if self.platform == "sn":
-            variables  = ["saa", "sza", "vaa", "vza", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "scl", "dataMask"]
+            variables  = ["saa", "sza", "vaa", "vza", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "dataMask", "scl"]
             units      = ["degrees"] * 4  + ["DN"] * 11 + ["unitless"] * 2
             prefix     = 'Sentinel-2-l1c '
             long_names = [prefix + name for name in long_name_strings]
-            long_names.append('TOA reflectance')
-            long_names.append('Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)')
+            long_names.append(prefix + 'TOA reflectance')
             long_names.append(prefix + "data mask (0=nodata, 1=data)")
+            long_names.append('Scene classification mask (0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows, 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice)')
             attrs = {"Data_Attribution": f"Sentinel-2 data for Site: {loc_name}",
                      "crs": self.proj["crs"]}
         elif self.platform == "ls":

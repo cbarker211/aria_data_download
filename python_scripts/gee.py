@@ -113,7 +113,6 @@ def search_gee(launch_data, launch_data_dict, landsat, bbox, scene, threshold, s
             data_dict_out = {}
 
         data_dict_out["cloud_prop"] = cloud_props[i]
-        print(cloud_props[i],invalid_props[i],snow_props[i])
 
         # Get metadata.
         time_ms = times[i]
@@ -215,11 +214,10 @@ def download_gee(landsat, launch_time, time_start, time_end, bbox, site, scene, 
     ax.imshow(cloud_rgba)
     cloud_pct = cloud.mean() * 100
 
+    path = f"site_images/landsat/{site.replace('/', '')}/{scene}"
     if scene == "tar":
-        path = f"site_images/landsat/{site.replace('/', '')}"
         title = f'Landsat 8/9 Scene: {scene}, Time after launch: {(delta_t_secs/60):.1f} mins, Cloud Cover: {cloud_pct:.2f}%'
     elif scene == "ref":
-        path = f"site_images/landsat/{site.replace('/', '')}"
         datestr = overpass_dt.strftime("%m/%d/%Y, %H:%M:%S")
         title = f'Landsat 8/9 Scene: {scene}, Date: {datestr}, Cloud Cover: {cloud_pct:.2f}%, Snow Cover: {snow_pct:.2f}%'
     if not os.path.exists(path):

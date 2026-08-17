@@ -1,3 +1,5 @@
 site_images/
 download/
 __pycache__
+TEMPO/*
+*.ipynb

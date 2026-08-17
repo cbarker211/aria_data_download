@@ -4,7 +4,7 @@ function setup() {
     return {
         input: [{
             datasource: "S2L1C",
-            bands: ["sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean", "dataMask", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12"],
+            bands: ["sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B11", "B12", "dataMask"],
             units: "DN"
         }],
         output: [{
@@ -20,7 +20,6 @@ function evaluatePixel(sample) {
         sample.sunZenithAngles,
         sample.viewAzimuthMean,
         sample.viewZenithMean,
-        sample.dataMask,
         sample.B01,
         sample.B02,
         sample.B03,
@@ -32,5 +31,6 @@ function evaluatePixel(sample) {
         sample.B09,
         sample.B11,
         sample.B12,
+        sample.dataMask,
     ];
 }

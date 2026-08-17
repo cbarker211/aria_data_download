@@ -208,9 +208,9 @@ def download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm,
     # Save an image of the launch site overpass for a visual check.
     fig, ax = plt.subplots(figsize=(15, 10))
     rgb = np.stack([
-        requested_data[0][:, :, 8],  # Red
-        requested_data[0][:, :, 7],  # Green
-        requested_data[0][:, :, 6],  # Blue
+        requested_data[0][:, :, 7],  # Red
+        requested_data[0][:, :, 6],  # Green
+        requested_data[0][:, :, 5],  # Blue
     ], axis=-1)
     rgb = np.clip(rgb / 5000.0, 0, 1)
     ax.imshow(rgb)
@@ -222,12 +222,10 @@ def download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm,
 
     # Plot overlay
     ax.imshow(overlay)
-
+    path = f"site_images/sentinel/{site.replace('/', '')}/{scene}"
     if scene == "tar":
-        path = f"site_images/sentinel/{site.replace('/', '')}"
         title = f'Sentinel-2 Scene: {scene}, Time after launch: {(delta_t_secs/60):.1f} mins, Cloud Cover: {cloud_prop:.2f}%'
     elif scene == "ref":
-        path = f"site_images/sentinel/{site.replace('/', '')}"
         datestr = time.strftime("%m/%d/%Y, %H:%M:%S")
         title = f'Sentinel-2 Scene: {scene}, Date: {datestr}, Cloud Cover: {cloud_prop:.2f}%'
 

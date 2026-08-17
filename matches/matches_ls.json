@@ -30,48 +30,6 @@
             "162340.0"
         ]
     },
-    "XSC_LC2": {
-        "name": "Launch Complex 2, Xichang Space Center",
-        "lat": "28.2455",
-        "lon": "102.0271",
-        "launch_times": [
-            "2023-05-17T02:49:00"
-        ],
-        "launch_rockets": [
-            "Chang Zheng 3B"
-        ],
-        "launch_prop_mass_kg": [
-            "327900.0"
-        ]
-    },
-    "KSC_LC39A": {
-        "name": "Launch Complex 39A, NASA Kennedy Space Center, Florida",
-        "lat": "28.6083",
-        "lon": "-80.6041",
-        "launch_times": [
-            "2025-01-08T15:27:00"
-        ],
-        "launch_rockets": [
-            "Falcon 9"
-        ],
-        "launch_prop_mass_kg": [
-            "372000.0"
-        ]
-    },
-    "CC_SLC41": {
-        "name": "Space Launch Complex 41, Cape Canaveral",
-        "lat": "28.5833",
-        "lon": "-80.5831",
-        "launch_times": [
-            "2015-05-20T15:05:00"
-        ],
-        "launch_rockets": [
-            "Atlas V 501"
-        ],
-        "launch_prop_mass_kg": [
-            "283110.0"
-        ]
-    },
     "TYSC_LC9": {
         "name": "Pad 9, Taiyuan Space Center, Wuzhai, Shanxi, China",
         "lat": "38.8632",

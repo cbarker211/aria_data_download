@@ -5,7 +5,6 @@ function setup() {
         input: [{
             datasource: "S2L2A",
             bands: ["SCL"],
-            units: "DN"
         }],
         output: [{
             bands: 1,
