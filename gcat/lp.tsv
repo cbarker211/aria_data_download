@@ -1,5 +1,5 @@
 #Site	Code	UCode	Type	StateCode	TStart	TStop	ShortName	Name	Location	Longitude	Latitude	Error	Parent	ShortEName	EName	UName
-# Updated 2026 Aug 16 2314:42
+# Updated 2026 Nov  9 0051:47
 A51	RW14/32	-	LP	-	1955	*	Area 51 RW14/32	Runway 14/32, Groom Lake Air Force Base, Area 51, Nevada	Groom Lake, Nevada	   -115.8020 	   37.2375 	0.0001 	NRO	-	-	-
 A51	X1	-	LP	-	1967 Sep 28	1967 Sep 28	Drone 501 Drop	Accidental Drop Location, D-51B 501, Nevada	Groom Lake, Nevada	   -115.8000 	   38.1000 	0.2000 	NRO	-	-	-
 ABER	A	-	LP	-	-	-	Launch Site A	Skylark Tower, Apron A, RAF Aberporth	Aberporth	     -4.5734 	   52.1415 	0.0001 	RAE	-	-	-
@@ -113,7 +113,8 @@ BLRUS	MOZYR	-	LP	-	2022	-	Mozyr	Mozyr launches in Russian invasion of Ukraine	-	
 BLRUS	GRUSH	-	LP	-	2022	-	Grushnoye	Grushnoye, Gomel region launches in Russian invasion of Ukraine	-	     30.4000 	   51.6000 	0.5000 	RVA	-	-	-
 BOHAI	LP1	-	LP	-	-	-	Bohai LP1	Sub launch site, Bohai sea	-	    119.4000 	   39.0000 	0.2000 	PLA	-	-	-
 BRETA	LP1	-	LP	-	-	-	Audierne LP1	Zone de lancement SNLE, Baie d'Audierne	Baie D'Audierne, Bretagne	     -4.0500 	   47.6300 	0.0500 	DGA	-	-	-
-BRETA	LP2	-	LP	-	-	-	Audierne LP1	Zone de lancement SNLE, Baie d'Audierne	Baie D'Audierne, Bretagne	     -4.1500 	   47.6500 	0.0200 	DGA	-	-	-
+BRETA	LP2	-	LP	-	-	-	Audierne LP2	Zone de lancement SNLE, Baie d'Audierne	Baie D'Audierne, Bretagne	     -4.1500 	   47.6500 	0.0200 	DGA	-	-	-
+BRETA	LP3	-	LP	-	-	-	Audierne LP3	Zone de lancement SNLE, Baie d'Audierne	Baie D'Audierne, Bretagne	     -4.4000 	   47.7000 	0.0200 	DGA	-	-	-
 BROCK	LP1	-	LP	-	2022	-	Black Rock LP1	MESOS launch point, Black Rock Desert, Nevada	-	   -119.1081 	   40.8704 	0.0001 	USDI	-	-	-
 BROCK	LP2	-	LP	-	2022	-	Black Rock LP2	Aftershock launch point, Black Rock Desert, Nevada	-	   -119.0347 	   40.8831 	0.0001 	USDI	-	-	-
 CAZ	RW06/24	-	LP	-	1962	-	CAZ	RW 06/24, Base aerienne 120, Cazaux, Nouvelle-Aquitaine	Cazaux, Nouvelle-Aquitaine	     -1.1130 	   44.5397 	0.0001 	DGA	-	-	-
@@ -345,7 +346,8 @@ EAFB	ROS B	-	LP	-	1960	1960	ROS   B	Rosamund Dry Lake, California (drop point B)
 EAFB	ROS C	-	LP	-	1959	1960	ROS   C	Rosamund Dry Lake, California (drop point C)	-	   -118.0200 	   34.7600 	0.0100 	NASA/USAF	-	-	-
 EAFB	ROS D	-	LP	-	1959	1959	ROS   D	Rosamund Dry Lake, California (drop point D)	-	   -118.1000 	   34.7600 	0.0100 	NASA/USAF	-	-	-
 EAFB	ROS WAL	-	LP	-	1959	1967	ROS   WAL	Waldrip drop zone, Rosamund Dry Lake, California	-	   -118.1000 	   34.7200 	0.0100 	NASA/USAF	-	-	-
-ECS	LP1	-	LP	-	2016	-	ECS LP1	Launch point 1, East China Sea	-	    122.7119 	   31.2040 	0.0002 	CNSA	-	-	-
+ECS	LP1	-	LP	-	2026	-	ECS LP1	Launch point 1, East China Sea	-	    122.7119 	   31.2040 	0.0002 	CNSA	-	-	-
+ECS	LP2	-	LP	-	2026	-	ECS LP2	Launch point 2, East China Sea	-	    123.7000 	   31.2000 	0.0002 	CNSA	-	-	-
 EGL	A-10	-	LP	-	1959 Sep 18	1980 Dec 12	EGL   A-10	Site A-10, Santa Rosa Island, Eglin AFB, Florida	-	    -86.7350 	   30.3958 	0.0500 	USAF	-	-	-
 EGL	A-11	-	LP	-	1959 Sep 18	1980 Dec 12	EGL   A-11	Site A-11, Santa Rosa Island, Eglin AFB, Florida	-	    -86.7350 	   30.3958 	0.0200 	USAF	-	-	-
 EGL	A-15	-	LP	-	1959 Sep 18	1980s?	EGL   A-15	Site A-15, Santa Rosa Island, Eglin AFB, Florida	-	    -86.8077 	   30.3870 	0.0200 	USAF	-	-	-
@@ -1957,6 +1959,7 @@ JQ	LC120B	-	LP	-	2022	*	JQ    LCTL3	TL-3 pad, Jiuquan Space Center	-	    100.136
 JQ	LC130	-	LP	-	2022	*	JQ    LC130	Pad 130 (ZK-1A) Jiuquan Space Center	-	    100.2242 	   40.8184 	0.0002 	CN	-	-	-
 JQ	LC140	-	LP	-	2022	*	JQ    LC140	Pad 140 (Lijian-2) Jiuquan Space Center	-	    100.2194 	   40.8174 	0.0002 	CN	-	-	-
 JQ	LC-CZ12A	-	LP	-	2025	*	JQ LC CZ12A	CZ-12a pad, Jiuquan Space Center	-	    100.2200 	   40.8910 	0.0020 	CN	-	-	中国商火酒泉研试发射工位
+JQ	LC-P1	-	LP	-	2025	*	JQ LC P1	Pallas 1 pad, Jiuquan Space Center	-	    100.1071 	   40.7760 	0.0005 	CN	-	-	-
 KANSK	LC1	-	LP	-	1988	1989	KANSK	LC1, Kansk, Krasnoyarsk region	-	     95.7000 	   56.2000 	0.1000 	RVSN	-	-	-
 KARK	L1	-	LP	-	1965 May 25	1965 May 30	KARK  L1	Launcher 1, Cape Karikari, North Island, New Zealand	-	    173.4053 	  -34.8250 	0.0001 	NASA	-	-	-
 KARK	L2	-	LP	-	1965 May 25	1965 May 30	KARK  L2	Launcher 2, Cape Karikari, North Island, New Zealand	-	    173.4053 	  -34.8250 	0.0001 	NASA	-	-	-

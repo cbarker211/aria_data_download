@@ -13,8 +13,7 @@ def clean_jsr_date(date):
     if pd.isna(date):
         return date
 
-    date = date.strip()
-    date = date.replace("?", "")
+    date = date.strip().replace("?", "").replace(";", ":")
     parts = date.split()
 
     # Remove values with no time.
@@ -78,6 +77,8 @@ class import_launches:
         df["Launch_Date"] = df["Launch_Date"].apply(clean_jsr_date) 
         no_time_rows   = len(df[df["Launch_Date"].isin(["No time included"])])
         df["Launch_Date"] = pd.to_datetime(df["Launch_Date"], errors="coerce") # Convert to datetime, setting errors to NaT (Not a Time) for failed parsing.
+        df = df[df["Launch_Date"] < pd.Timestamp("2026-11-01")]
+
         df["Launch_Date"] = df["Launch_Date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
         bad_rows = df[df["Launch_Date"].isna()]
         df_stats = pd.DataFrame({
@@ -111,8 +112,8 @@ class import_launches:
         for _, row in df_stages.iterrows():
             stage_id = str(row["#Stage_Name"]).strip()
             try:
-                launch_mass_kg = float(str(row["Launch_Mass"]).strip()) * 1000  # tonnes → kg
-                dry_mass_kg    = float(str(row["Dry_Mass"]).strip())
+                launch_mass_kg = float(str(row["Launch_Mass"]).strip().replace("?","")) * 1000  # tonnes → kg
+                dry_mass_kg    = float(str(row["Dry_Mass"]).strip().replace("?",""))
                 stage_prop_mass_lookup[stage_id] = round(launch_mass_kg - dry_mass_kg, 1)
             except (ValueError, TypeError):
                 stage_prop_mass_lookup[stage_id] = None

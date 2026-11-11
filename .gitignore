@@ -3,3 +3,4 @@ download/
 __pycache__
 TEMPO/*
 *.ipynb
+*.tif
