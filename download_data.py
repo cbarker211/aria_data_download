@@ -14,7 +14,7 @@ import sys
 import ee
 from sentinelhub.geometry import BBox
 from sentinelhub.constants import CRS
-from planet import Planet, data_filter
+from planet import Planet
 
 # Currently this searches for the launch overpass, and then searches for references before and after with minimal cloud cover.
 # But we need all instances of cloud-free overpasses with the launchpad so we can gather multiple potential reference scenes.
@@ -59,6 +59,7 @@ class find_data:
 
     def target_main(self, site):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
+        
         self.scene = "tar"
 
         # Open the sites file.
@@ -92,9 +93,10 @@ class find_data:
             launch_lon = float(site_data[site]['lon'])
             bbox, lat_range, lon_range = build_grid(launch_lat, launch_lon, "ls", 0.06, 0.08) # bbox is an array
 
+            geom = None
             if self.platform == "sn":
-                coords_wgs84 = tuple(bbox)
-                bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
+                lon_min, lat_min, lon_max, lat_max = bbox
+                bbox = BBox(bbox=(lon_min, lat_min, lon_max, lat_max), crs=CRS.WGS84)
             elif self.platform in ["tn","sd"]:
                 lon_min, lat_min, lon_max, lat_max = bbox
                 geom = {"type": "Polygon",
@@ -108,7 +110,7 @@ class find_data:
             # Check which times have an overpass within 1 hour with low cloud cover.
             launch_data = []
             proj_list = []
-            for i, (time, rocket, prop) in tqdm(enumerate(launch_metadata), total = len(launch_metadata), desc="Processing rows"):
+            for (time, rocket, prop) in tqdm(launch_metadata, total = len(launch_metadata), desc="Processing rows"):
 
                 launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
 
@@ -131,6 +133,7 @@ class find_data:
                 elif self.platform in ["tn","sd"]:
                     crs = None
                     launch_data = search_planet(launch_data, launch_data_dict, self.pl, geom, self.scene, 30, site, self.platform)
+                else: raise ValueError(f"Unexpected Platform {self.platform}")
                 
                 if crs is not None:
                     proj_list.append(crs)
@@ -214,8 +217,8 @@ class find_data:
 
                 elif self.platform == "sn":
                     # Set up grid box around site:
-                    coords_wgs84 = tuple(bbox)
-                    bbox = BBox(bbox=coords_wgs84, crs=CRS.WGS84)
+                    lon_min, lat_min, lon_max, lat_max = bbox
+                    bbox = BBox(bbox=(lon_min, lat_min, lon_max, lat_max), crs=CRS.WGS84)
                     ref_data, _ = search_copernicus([], ref_data_dict, bbox, "ref", 5, site)
 
                     if len(ref_data) == 0:
@@ -227,16 +230,16 @@ class find_data:
         # data is a list where each item is a cloud_free overpass.
         # data_out is an array of dimensions (time, lat, lon, variable) where the variable axis contains the 16 bands and dataMask for Sentinel-2, and the QA_PIXEL for Landsat.
 
+        bbox_utm, size = None, None
         if self.platform == "sn":
             # Build an array of dimensions (time, lat, lon, variable).
             self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
-            #data_out = np.full((len(data), self.height, self.width, 17), np.nan, dtype=np.float32)
             filename = f"sentinel-2-l1c-band-l2a-slc-{site.replace('/', '')}-{self.target_res}-{self.scene}"
             bbox_utm = bbox.transform(CRS(self.proj["crs"]))
             size = bbox_to_dimensions(bbox_utm, resolution=self.target_res)
         elif self.platform == "ls":
-            #data_out = np.full((len(data), self.height, self.width, 16), np.nan, dtype=np.float32)
             filename = f"landsat-8-9-c2-t1-toa-{site.replace('/', '')}-{self.target_res}-{self.scene}"
+        else: raise ValueError(f"Unexpected Platform {self.platform}")
 
         if self.scene == "tar":
             filename = f"{filename}.nc"
@@ -244,6 +247,7 @@ class find_data:
             filename = f"{filename}-{self.year}.nc"
 
         # Loop over scenes.
+        arrays = []
         for ind, image in enumerate(data):
             if self.scene == "tar":
                 time  = image["launch_time"]
@@ -258,11 +262,13 @@ class find_data:
                 downloaded_data = download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm, size, site, self.scene)
             elif self.platform == "ls":
                 downloaded_data = download_gee(self.landsat, time, time_start, time_end, bbox, site, self.scene, self.proj)
-            self.shape = np.shape(downloaded_data)
-            if ind == 0:
-                data_out = np.full((len(data), self.shape[0], self.shape[1], self.shape[2]), np.nan, dtype=np.float32)
-            data_out[ind, ...] = downloaded_data
+            else: raise ValueError(f"Unexpected Platform {self.platform}")
             
+            self.shape = np.shape(downloaded_data)
+            arrays.append(downloaded_data)
+            
+        data_out = np.stack(arrays).astype(np.float32)
+        
         # Save data for this site
         self.save_to_netcdf(site, data_out, data, lat_range, lon_range, loc_name, filename)
         print(f'{site}-{self.target_res} written to disk')
@@ -303,6 +309,7 @@ class find_data:
             attrs = {"Data_Attribution": f"Landsat 8/9 data for Site: {loc_name}",
                      "crs": self.proj["crs"],
                      "transform": self.proj["transform"]}
+        else: return
             
         # Create arrays for all overpasses.
         cloud_prop = np.array([l["cloud_prop"] for l in data], dtype=np.float32)
@@ -361,7 +368,7 @@ if __name__ == "__main__":
 
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
-    parser.add_argument('-pt',  "--platform",    default = "sn",      help="Platform (Sentinel-2 - sn, Landsat - ls, PACE/OLI - pace).")
+    parser.add_argument('-pt',  "--platform",    default = "sn",      help="Platform (Sentinel-2 - sn, Landsat - ls, Superdove - sd, Tanager - tn)")
     parser.add_argument('-site',"--site",        default = "all",     help="Launch site.")
     parser.add_argument('-tar', "--save_target", action='store_true', help='Save target data for the year.')
     parser.add_argument('-ref', "--save_refs",   action='store_true', help='Save reference data for the year.')

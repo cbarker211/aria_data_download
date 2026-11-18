@@ -1,25 +1,5 @@
 import numpy as np
-from io import StringIO
-import pandas as pd
 from haversine import haversine
-
-def scrape_jsr(url,session):
-    # Function to web scrape data and convert to a pandas DataFrame.
-    response = session.get(url)
-    if response.status_code == 200:
-
-        filename = url.split("/")[-1]  # Use the last part of the URL as filename
-        with open(f"gcat/{filename}", "w", encoding="utf-8") as f:
-            f.write(response.text)
-
-        # Convert the content to a file-like object for pandas
-        tsv_data = StringIO(response.text)
-        # Load the data into a pandas DataFrame
-        df = pd.read_csv(tsv_data, delimiter="\t", dtype=object, low_memory=False)
-        df = df.iloc[1:].reset_index(drop=True)
-    else:
-        raise ImportError(f"Failed to fetch from JSR URL: {url}", response.status_code)
-    return df
 
 def build_grid(site_lat, site_lon, source, dellat=0.06, dellon=0.08):
 
