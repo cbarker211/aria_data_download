@@ -35,12 +35,6 @@ class find_data:
             self.target_res = 60
 
         elif self.platform == "ls":
-            #username = "connorbarker"
-            #token = np.loadtxt("/home/ucfacb0/.config/.m2m", dtype=str).item()        
-            #serviceUrl = "https://m2m.cr.usgs.gov/api/api/json/stable/"
-            #payload = {'username' : username, 'token' : token}
-            #self.apiKey = sendRequest(serviceUrl + "login-token", payload)  
-
             key_path = '/home/ucfacb0/.config/earthengine/satroc-ef1c505b5935.json'
 
             credentials = ee.ServiceAccountCredentials(
@@ -54,8 +48,10 @@ class find_data:
             ls9 = ee.ImageCollection('LANDSAT/LC09/C02/T1_TOA')
             self.landsat = ls8.merge(ls9)
             self.target_res = 30
-        elif self.platform in ["tn","sd"]:
+            
+        elif self.platform == "sd":
             self.pl = Planet()
+            self.target_res = 3
 
     def target_main(self, site):
         """This function downloads data for the launch sites and times specified in the sites.json file."""
@@ -63,7 +59,7 @@ class find_data:
         self.scene = "tar"
 
         # Open the sites file.
-        site_data = json.load(open("sites.json"))
+        site_data = json.load(open("/home/ucfacb0/ARIA/build_launch_list/sites.json"))
 
         # Make the blank coincidence file if it doesn't already exist.
         if f"matches_{self.platform}.json" in os.listdir("./matches"):
@@ -85,8 +81,9 @@ class find_data:
                                            'lat': site_data[site]["lat"],
                                            'lon': site_data[site]["lon"],
                                            'launch_times':         [],
-                                           'launch_rockets':      [],
-                                           'launch_prop_mass_kg': []}
+                                           'launch_rockets':       [],
+                                           'launch_prop_mass_kg':  [],
+                                           'item_id':              []}
 
             # Set up grid box around site:
             launch_lat = float(site_data[site]['lat'])
@@ -109,7 +106,7 @@ class find_data:
 
             # Check which times have an overpass within 1 hour with low cloud cover.
             launch_data = []
-            proj_list = []
+            proj_list, planet_launches = [], []
             for (time, rocket, prop) in tqdm(launch_metadata, total = len(launch_metadata), desc="Processing rows"):
 
                 launch_time = datetime.fromisoformat(time).replace(tzinfo=timezone.utc)
@@ -130,13 +127,18 @@ class find_data:
                         self.width = width
                 elif self.platform == "sn":
                     launch_data, crs = search_copernicus(launch_data, launch_data_dict, bbox, self.scene, 30, site)
-                elif self.platform in ["tn","sd"]:
+                elif self.platform == "sd":
+                    if launch_time < datetime(2020,3,15, tzinfo=timezone.utc):
+                        continue
                     crs = None
-                    launch_data = search_planet(launch_data, launch_data_dict, self.pl, geom, self.scene, 30, site, self.platform)
+                    planet_launches.append(launch_data_dict)
                 else: raise ValueError(f"Unexpected Platform {self.platform}")
                 
                 if crs is not None:
                     proj_list.append(crs)
+
+            if self.platform == "sd" and planet_launches:
+                launch_data = search_planet(planet_launches, self.pl, geom, self.scene, 30, site)
 
             if len(proj_list) > 0:
                 if all(d["crs"] == proj_list[0]["crs"] for d in proj_list):
@@ -157,6 +159,8 @@ class find_data:
                 site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
                 site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
                 site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
+                if self.platform == "sd":
+                    site_data_coincidence[site]['item_id'].append(entry["item_id"])              
 
         # Remove sites where no coincidences were found.
         site_data_coincidence = {site: data
@@ -234,44 +238,50 @@ class find_data:
         if self.platform == "sn":
             # Build an array of dimensions (time, lat, lon, variable).
             self.width, self.height = bbox_to_dimensions(bbox, resolution=self.target_res)
-            filename = f"sentinel-2-l1c-band-l2a-slc-{site.replace('/', '')}-{self.target_res}-{self.scene}"
+            filename_prefix = "sentinel-2-l1c-band-l2a-slc"
             bbox_utm = bbox.transform(CRS(self.proj["crs"]))
             size = bbox_to_dimensions(bbox_utm, resolution=self.target_res)
         elif self.platform == "ls":
-            filename = f"landsat-8-9-c2-t1-toa-{site.replace('/', '')}-{self.target_res}-{self.scene}"
+            filename_prefix = "landsat-8-9-c2-t1-toa"
+        elif self.platform == "sd":
+            filename_prefix = "superdove-8-9-c2-t1-toa"
         else: raise ValueError(f"Unexpected Platform {self.platform}")
-
+        
+        filename = f"{filename_prefix}-{site.replace('/', '')}-{self.target_res}-{self.scene}"
         if self.scene == "tar":
             filename = f"{filename}.nc"
         else:
             filename = f"{filename}-{self.year}.nc"
 
-        # Loop over scenes.
-        arrays = []
-        for ind, image in enumerate(data):
-            if self.scene == "tar":
-                time  = image["launch_time"]
-                delta_t_secs = image["delta_t_secs"]
-            else:
-                time = image["overpass_time"]
-                delta_t_secs = "0"
-            time_start = (time+timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
-            time_end   = (time+timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-            if self.platform == "sn":
-                downloaded_data = download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm, size, site, self.scene)
-            elif self.platform == "ls":
-                downloaded_data = download_gee(self.landsat, time, time_start, time_end, bbox, site, self.scene, self.proj)
-            else: raise ValueError(f"Unexpected Platform {self.platform}")
+        # For SuperDove, we download all scenes from the same site at once in a separate notebook (/home/ucfacb0/ARIA/Level_1_Retrievals/Planet/download_planet.ipynb)  
+        # For Landsat and Sentinel, we need to download individually.
+        if self.platform in ["ls","sn"]:
+            # Loop over scenes.
+            arrays = []
+            for ind, image in enumerate(data):
+                if self.scene == "tar":
+                    time  = image["launch_time"]
+                    delta_t_secs = image["delta_t_secs"]
+                else:
+                    time = image["overpass_time"]
+                    delta_t_secs = "0"
+                time_start = (time+timedelta(hours=deltat_minus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                time_end   = (time+timedelta(hours=deltat_plus)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                
+                if self.platform == "sn":
+                    downloaded_data = download_copernicus(time, delta_t_secs, time_start, time_end, ind, bbox_utm, size, site, self.scene)
+                elif self.platform == "ls":
+                    downloaded_data = download_gee(self.landsat, time, time_start, time_end, bbox, site, self.scene, self.proj)
+                else: raise ValueError(f"Unexpected Platform {self.platform}")
+                
+                self.shape = np.shape(downloaded_data)
+                arrays.append(downloaded_data)
+                
+            data_out = np.stack(arrays).astype(np.float32)
             
-            self.shape = np.shape(downloaded_data)
-            arrays.append(downloaded_data)
-            
-        data_out = np.stack(arrays).astype(np.float32)
-        
-        # Save data for this site
-        self.save_to_netcdf(site, data_out, data, lat_range, lon_range, loc_name, filename)
-        print(f'{site}-{self.target_res} written to disk')
+            # Save data for this site
+            self.save_to_netcdf(site, data_out, data, lat_range, lon_range, loc_name, filename)
+            print(f'{site}-{self.target_res} written to disk')
 
     def save_to_netcdf(self, site, data_out, data, lat_range, lon_range, loc_name, filename):
 
