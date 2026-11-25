@@ -59,7 +59,7 @@ class find_data:
         self.scene = "tar"
 
         # Open the sites file.
-        site_data = json.load(open("/home/ucfacb0/ARIA/build_launch_list/sites.json"))
+        site_data = json.load(open("/home/ucfacb0/ARIA/aria_data_download/build_launch_list/sites.json"))
 
         # Make the blank coincidence file if it doesn't already exist.
         if f"matches_{self.platform}.json" in os.listdir("./matches"):
@@ -174,7 +174,7 @@ class find_data:
         """This function downloads the Sentinel-2 data for a launch site over a specified year."""
         self.scene = "ref"
         # Open the sites file.
-        site_meta = json.load(open("sites.json"))
+        site_meta = json.load(open("/home/ucfacb0/ARIA/aria_data_download/build_launch_list/sites.json"))
         site_data = json.load(open(f"matches/matches_{self.platform}.json"))
 
         if site == "all":

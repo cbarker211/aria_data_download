@@ -54,8 +54,10 @@ def search_planet(launch_data_dict, planet, geom, scene, cloud_cover, site):
         
         # Time Check
         if last_time is None or (acq_time - last_time) > timedelta(seconds=60):  # >60 s = distinct pass
-            clear_items.append((item, launch))
-            last_time = acq_time
+            clear_items.append((item, launch, covered))
+        elif covered > clear_items[-1][2]:                                   # same pass, better coverage
+            clear_items[-1] = (item, launch, covered)
+        last_time = acq_time
                 
     if len(clear_items) == 0:
         return launch_data
@@ -64,7 +66,7 @@ def search_planet(launch_data_dict, planet, geom, scene, cloud_cover, site):
     else:
         iterator = clear_items
 
-    for item, launch in iterator:
+    for item, launch, covered in iterator:
 
         # Copy so that we can change data_dict each time.
         if scene == "tar":
