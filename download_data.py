@@ -83,7 +83,8 @@ class find_data:
                                            'launch_times':         [],
                                            'launch_rockets':       [],
                                            'launch_prop_mass_kg':  [],
-                                           'item_id':              []}
+                                           'item_id':              [],
+                                           'delta_t_secs':         []}
 
             # Set up grid box around site:
             launch_lat = float(site_data[site]['lat'])
@@ -159,6 +160,7 @@ class find_data:
                 site_data_coincidence[site]['launch_times'].append(entry["launch_time"].strftime("%Y-%m-%dT%H:%M:%S"))
                 site_data_coincidence[site]['launch_rockets'].append(entry["launch_rocket"])
                 site_data_coincidence[site]['launch_prop_mass_kg'].append(str(entry["launch_prop"]))
+                site_data_coincidence[site]['delta_t_secs'].append(int(entry["delta_t_secs"])) 
                 if self.platform == "sd":
                     site_data_coincidence[site]['item_id'].append(entry["item_id"])              
 
