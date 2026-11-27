@@ -144,7 +144,7 @@ def search_copernicus(data_dict_list, data_dict, bbox, scene, threshold, site):
         # Avoid scenes which has more than 20% invalid pixels.
         invalid_mask = np.isin(scl, [0, 1])  
         invalid_prop = (invalid_mask).mean() * 100   
-        if invalid_prop > threshold:
+        if invalid_prop > 40:
             if scene == "tar":
                 print(f"Scene on {data_dict["launch_time"]} has {invalid_prop:.2f}% invalid pixels. Skipping.")
             if scene == "ref":

@@ -186,13 +186,12 @@ if __name__ == "__main__":
     
     # Set up the arguments for each function.
     parser = argparse.ArgumentParser()
-    parser.add_argument('-sy',   "--start_year",   default = "2013", choices=str(np.arange(2013,2026)), help='Start Year (2013-2025).')
+    parser.add_argument('-sy',   "--start_year", type=int, choices=range(2013, 2027), default=2013, help='Start Year (2013-2025).')
     args = parser.parse_args()
     
     # Sort out the year range.
-    start_year = int(args.start_year)
-    print(f"Processing from {start_year} to present.")  
+    print(f"Processing from {args.start_year} to present.")  
     
     #Loop over all years and run functions depending on input arguments.
-    LaunchData = import_launches(start_year)  
+    LaunchData = import_launches(args.start_year)  
     LaunchData.get_launch_info_jsr()

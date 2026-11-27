@@ -314,8 +314,8 @@ class find_data:
                      "crs": self.proj["crs"]}
         elif self.platform == "ls":
             variables  = ["saa", "sza", "vaa", "vza", "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B10", "B11", "QA_PIXEL"] 
-            units      = ["degrees"] * 4 + ["unitless"] * 9 + ["Kelvin"] * 2 + ["bitmask"] 
-            prefix     = 'Landsat 8/9 '
+            units      = ["degrees"] * 4 + ["unitless"] * 8 + ["Kelvin"] * 2 + ["bitmask"] 
+            prefix     = 'Landsat 8/9'
             long_names = [prefix + name for name in long_name_strings]
             long_names.append('QA_PIXEL bitmask (0 - Fill, 1 - Dilated Cloud, 2 - Cirrus, 3 - Cloud, 4 - Cloud Shadow, 5 - Snow, 6 - Clear, 7 - Water, 8-15 - Confidence)')
             attrs = {"Data_Attribution": f"Landsat 8/9 data for Site: {loc_name}",
